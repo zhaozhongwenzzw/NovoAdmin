@@ -47,7 +47,7 @@ jobs:
       
       # 3. 安装依赖
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Build
         run: pnpm run docs:build

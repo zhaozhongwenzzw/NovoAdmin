@@ -3,7 +3,7 @@ import postcss from "../.postcssrc.cjs";
 
 export default defineConfig({
 	// 网站标题
-	title: "React Admin 文档",
+	title: "NovoAdmin  文档",
 	// 网站描述
 	description: "基于 React 18 的现代化管理系统",
 	// 部署的基本路径
@@ -12,7 +12,7 @@ export default defineConfig({
 	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
 
 	// 简化 Vite 配置，仅禁用 PostCSS
-	
+
 	vite: {
 		css: {
 			postcss: postcss,

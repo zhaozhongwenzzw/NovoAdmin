@@ -1,7 +1,7 @@
 ---
 layout: home
 hero:
-  name: React Admin
+  name: NovoAdmin
   text: 现代化的 React 管理系统框架
   tagline: 基于 React 18、TypeScript、Ant Design 和 Zustand
   actions:
@@ -30,4 +30,4 @@ features:
   - icon: 📊
     title: 可配置表格
     details: 支持自定义列、排序、筛选、分页等功能
---- 
+---

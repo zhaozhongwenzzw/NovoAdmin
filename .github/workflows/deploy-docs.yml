@@ -47,7 +47,7 @@ jobs:
       
       # 3. 安装依赖
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install 
       
       - name: Build
         run: pnpm run docs:build
@@ -65,7 +65,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: Deploy
-    uses: peaceiris/actions-gh-pages@v3
-    with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/.vitepress/dist
+    steps:
+        - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/.vitepress/dist 

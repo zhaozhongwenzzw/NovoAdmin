@@ -1,1 +1,0 @@
-import{_ as t,c as e,o}from"./chunks/framework.Cv2Q7lXT.js";const i=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"components/toast.md","filePath":"components/toast.md"}'),a={name:"components/toast.md"};function s(n,c,r,p,m,_){return o(),e("div")}const f=t(a,[["render",s]]);export{i as __pageData,f as default};

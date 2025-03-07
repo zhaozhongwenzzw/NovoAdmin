@@ -7,7 +7,7 @@ export default defineConfig({
 	// 网站描述
 	description: "基于 React 18 的现代化管理系统",
 	// 部署的基本路径
-	base: "./",
+	base: "/NovoAdmin/",
 	// 头部配置
 	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
 

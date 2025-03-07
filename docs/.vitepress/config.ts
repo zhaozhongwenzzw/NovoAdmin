@@ -7,7 +7,7 @@ export default defineConfig({
 	// 网站描述
 	description: "基于 React 18 的现代化管理系统",
 	// 部署的基本路径
-	base: "/blog-nest-react/",
+	base: "/NovoAdmin/",
 	// 头部配置
 	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
 
@@ -34,7 +34,7 @@ export default defineConfig({
 			{ text: "首页", link: "/" },
 			{ text: "指南", link: "/guide/" },
 			{ text: "组件", link: "/components/animate" },
-			{ text: "GitHub", link: "https://github.com/zhaozhongwenzzw/blog-nest-react.git" },
+			{ text: "GitHub", link: "https://github.com/zhaozhongwenzzw/NovoAdmin.git" },
 		],
 		// 侧边栏
 		sidebar: {
@@ -62,7 +62,7 @@ export default defineConfig({
 			],
 		},
 		// 社交链接
-		socialLinks: [{ icon: "github", link: "https://github.com/zhaozhongwenzzw/blog-nest-react.git" }],
+		socialLinks: [{ icon: "github", link: "https://github.com/zhaozhongwenzzw/NovoAdmin.git" }],
 		// 页脚
 		footer: {
 			message: "使用 VitePress 构建",

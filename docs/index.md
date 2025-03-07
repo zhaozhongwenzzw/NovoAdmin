@@ -10,7 +10,7 @@ hero:
       link: /guide/
     - theme: alt
       text: 在 GitHub 上查看
-      link: https://github.com/zhaozhongwenzzw/blog-nest-react.git
+      link: https://github.com/zhaozhongwenzzw/NovoAdmin.git
 features:
   - icon: ⚡️
     title: 高性能

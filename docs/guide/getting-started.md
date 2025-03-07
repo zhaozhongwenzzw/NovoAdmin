@@ -9,7 +9,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/zhaozhongwenzzw/blog-nest-react.git
+git clone https://github.com/zhaozhongwenzzw/NovoAdmin.git
 
 # 进入项目目录
 cd blog-nest-react

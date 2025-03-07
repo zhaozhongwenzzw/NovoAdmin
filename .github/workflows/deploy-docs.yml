@@ -43,15 +43,15 @@ jobs:
           version: 8
       
       - name: Install dependencies
-        run: cd apps/admin && pnpm install
+        run:  pnpm install
       
       - name: Build
-        run: cd apps/admin && pnpm run docs:build
+        run:  pnpm run docs:build
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/admin/docs/.vitepress/dist
+          path: /docs/.vitepress/dist
 
   # 部署工作
   deploy:

@@ -1,1 +1,0 @@
-import{_ as t,c as e,o as a}from"./chunks/framework.BMBYWaLh.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"components/multi-tabs.md","filePath":"components/multi-tabs.md"}'),o={name:"components/multi-tabs.md"};function s(n,c,r,m,i,p){return a(),e("div")}const d=t(o,[["render",s]]);export{_ as __pageData,d as default};

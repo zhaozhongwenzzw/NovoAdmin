@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./chunks/framework.BMBYWaLh.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"guide/best-practices.md","filePath":"guide/best-practices.md"}'),s={name:"guide/best-practices.md"};function c(r,i,o,n,p,d){return a(),t("div")}const f=e(s,[["render",c]]);export{m as __pageData,f as default};

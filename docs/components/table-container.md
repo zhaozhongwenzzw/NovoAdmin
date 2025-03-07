@@ -111,7 +111,6 @@ function UserTable() {
 | pagination   | TablePaginationConfig  | 分页配置或 false 禁用分页    |
 | rowKey       | string \| function     | 行数据唯一标识               |
 | rowSelection | object                 | 行选择配置                   |
-| scroll       | { x?: number, y?: number } | 表格滚动配置              |
 | onChange     | function(pagination, filters, sorter, extra) | 表格变化事件 |
 
 ## 表格设置功能

@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+- 该项目依赖使用pnpm
+- 安装第三方库前检查package.json是否存在相同功能的依赖

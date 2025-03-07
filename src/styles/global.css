@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --c-bg: transparent;
+  --c-scrollbar: #aaa;
+  --c-scrollbar-hover: #777;
+}
+
+html body {
+  background-color: var(--c-bg);
+}

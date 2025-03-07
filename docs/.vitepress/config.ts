@@ -12,6 +12,7 @@ export default defineConfig({
 	head: [["link", { rel: "icon", href: "/favicon.ico" }]],
 
 	// 简化 Vite 配置，仅禁用 PostCSS
+	
 	vite: {
 		css: {
 			postcss: postcss,

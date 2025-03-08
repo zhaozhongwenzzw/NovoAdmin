@@ -7,8 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
-
 interface UserState {
 	userInfo: Partial<UserInfo>;
 	userToken: string;
@@ -57,7 +55,9 @@ export const useSignIn = () => {
 			return;
 		}
 		setUserInfo(res.data);
-		navigatge(HOMEPAGE, { replace: true });
+
+		// 始终跳转到根路由，让根路由的SmartRedirect组件负责后续导航
+		navigatge("/", { replace: true });
 	};
 	const signIn = async (data: loginReqType) => {
 		const res = await login(data);

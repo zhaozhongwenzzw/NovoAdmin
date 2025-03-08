@@ -5,11 +5,12 @@ import { useMemo, useState, useEffect } from "react";
 import type { MenuProps } from "antd";
 import type { Permission } from "@/types/user";
 import NavLogo from "./nav-logo";
-import { NAV_WIDTH } from "../config";
+import { NAV_FIRST_WIDTH, NAV_WIDTH } from "../config";
 import { useSettingActions, useSettings } from "@/store/settingStore";
 import { Iconify } from "@/components/icon";
 import styled from "styled-components";
-import { ThemeLayout } from "@/types/enum/setting";
+import { ThemeLayout, ThemeMode } from "@/types/enum/setting";
+import { cn } from "@/utils/cn";
 
 const { Sider } = Layout;
 
@@ -36,6 +37,7 @@ const NavVertical = () => {
 
 		return openKeys;
 	}, [location.pathname]);
+	console.log(defaultOpenKeys);
 
 	// 监听 themeLayout 变化，自动设置 collapsed 状态
 	useEffect(() => {
@@ -65,37 +67,81 @@ const NavVertical = () => {
 		return generateMenuItems(userInfo.permissions);
 	}, [userInfo.permissions]);
 
-	const darkSidebar = useMemo(() => (settings.darkSidebar ? "dark" : "light"), [settings.darkSidebar]);
+	const darkSidebar = useMemo(() => {
+		if (settings.themeMode === ThemeMode.Dark) {
+			return settings.darkSidebar ? "light" : "dark";
+		}
+		return settings.darkSidebar ? "dark" : "light";
+	}, [settings.themeMode, settings.darkSidebar]);
 
 	return (
-		<Sider
-			trigger={null}
-			collapsible
-			collapsed={collapsed}
-			theme={darkSidebar}
-			width={NAV_WIDTH}
-			className="!fixed left-[0px] top-0 h-screen border-r border-dashed border-border"
-		>
-			<div className="flex h-full flex-col relative">
-				<NavLogo collapsed={collapsed} />
-				<Menu
-					mode="inline"
-					theme={darkSidebar}
-					selectedKeys={[location.pathname]}
-					defaultOpenKeys={defaultOpenKeys}
-					items={menuItems}
-					onClick={({ key }: { key: string }) => navigate(key)}
-					className="!border-none"
-				/>
-				<CollapseButton onClick={handleCollapse} $collapsed={collapsed}>
-					<Iconify icon="ep:arrow-left-bold" className="collapse-icon" />
-				</CollapseButton>
-			</div>
-		</Sider>
+		<div className={cn("!fixed left-[0px] top-0 flex h-full")}>
+			<NavFirst $themeMode={settings.themeMode} $isDarkSidebar={settings.darkSidebar}>
+				<NavLogo collapsed={true} />
+				{menuItems?.map((item) => (
+					<NavFirstItem key={item?.key} $isActive={defaultOpenKeys.includes(item?.key)}>
+						{item?.icon}
+						<span>{item?.label}</span>
+					</NavFirstItem>
+				))}
+			</NavFirst>
+			<Sider
+				trigger={null}
+				collapsible
+				collapsed={collapsed}
+				theme={darkSidebar}
+				width={NAV_WIDTH}
+				className=" h-screen border-r border-dashed border-border"
+			>
+				<div className="flex h-full flex-col relative">
+					<div className="text-primary text-2xl font-bold text-center mt-4 mb-2">Novo Admin</div>
+					<Menu
+						mode="inline"
+						theme={darkSidebar}
+						selectedKeys={[location.pathname]}
+						defaultOpenKeys={defaultOpenKeys}
+						items={menuItems}
+						onClick={({ key }: { key: string }) => navigate(key)}
+						className="!border-none"
+					/>
+					<CollapseButton onClick={handleCollapse} $collapsed={collapsed}>
+						<Iconify icon="ep:arrow-left-bold" className="collapse-icon" />
+					</CollapseButton>
+				</div>
+			</Sider>
+		</div>
 	);
 };
 
 export default NavVertical;
+
+const NavFirst = styled.div<{ $themeMode: ThemeMode; $isDarkSidebar: boolean }>`
+	width: ${NAV_FIRST_WIDTH}px;
+	height: 100%;
+	background-color: ${(props) => (props.$isDarkSidebar ? (props.$themeMode === "light" ? "#161c24" : "var(--colors-background-paper)") : "var(--colors-background-default)")};
+	border-right: 1px dashed rgba(var(--colors-palette-gray-500Channel), 0.1);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+`;
+
+const NavFirstItem = styled.div<{ $isActive: boolean }>`
+	width: 95%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 10px;
+	border-bottom: 1px dashed rgba(var(--colors-palette-gray-500Channel), 0.1);
+	box-sizing: border-box;
+	border-radius: 4px;
+	color:${(props) => (props.$isActive ? "var(--colors-palette-primary-default)" : "var(--colors-text-secondary)")};
+	background-color: ${(props) => (props.$isActive ? "var(--colors-antd-primary-color0)" : "transparent")};
+	&:hover {
+		background-color: rgba(var(--colors-palette-gray-500Channel), 0.1);
+		cursor: pointer;
+	}
+`;
 
 const CollapseButton = styled.div<{ $collapsed: boolean }>`
   position: absolute;

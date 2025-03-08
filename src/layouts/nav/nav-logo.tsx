@@ -1,8 +1,8 @@
-import Logo from '@/components/logo';
-import { useSettings } from '@/store/settingStore';
-import { ThemeLayout } from '@/types/enum/setting';
-import { HEADER_HEIGHT } from '../config';
-import styled from 'styled-components';
+import Logo from "@/components/logo";
+import { useSettings } from "@/store/settingStore";
+import { ThemeLayout } from "@/types/enum/setting";
+import { HEADER_HEIGHT } from "../config";
+import styled from "styled-components";
 
 const LogoWrapper = styled.div<{ $collapsed: boolean }>`
   height: ${HEADER_HEIGHT}px;
@@ -22,38 +22,38 @@ const LogoWrapper = styled.div<{ $collapsed: boolean }>`
       font-size: 20px;
       font-weight: 700;
       white-space: nowrap;
-      display: ${(props) => (props.$collapsed ? 'none' : 'block')};
+      display: ${(props) => (props.$collapsed ? "none" : "block")};
       opacity: ${(props) => (props.$collapsed ? 0 : 1)};
       transition: opacity 0.2s ease;
-      transform: ${(props) => (props.$collapsed ? 'translateX(-10px)' : 'translateX(0)')};
+      transform: ${(props) => (props.$collapsed ? "translateX(-10px)" : "translateX(0)")};
     }
   }
 `;
 
 type Props = {
-  collapsed?: boolean;
-  onToggle?: () => void;
+	collapsed?: boolean;
+	onToggle?: () => void;
 };
 
 export default function NavLogo({ collapsed = false }: Props) {
-  const { themeLayout } = useSettings();
+	const { themeLayout } = useSettings();
 
-  if (themeLayout === ThemeLayout.Mini) {
-    return (
-      <LogoWrapper $collapsed={true}>
-        <div className="logo-content">
-          <Logo />
-        </div>
-      </LogoWrapper>
-    );
-  }
+	if (themeLayout === ThemeLayout.Mini) {
+		return (
+			<LogoWrapper $collapsed={true}>
+				<div className="logo-content">
+					<Logo />
+				</div>
+			</LogoWrapper>
+		);
+	}
 
-  return (
-    <LogoWrapper $collapsed={collapsed}>
-      <div className="logo-content">
-        <Logo />
-        <span className="logo-text text-primary">Novo Admin</span>
-      </div>
-    </LogoWrapper>
-  );
+	return (
+		<LogoWrapper $collapsed={collapsed} className="mt-2 mb-2">
+			<div className="logo-content">
+				<Logo />
+				<span className="logo-text text-primary">Novo Admin</span>
+			</div>
+		</LogoWrapper>
+	);
 }

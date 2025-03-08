@@ -1,8 +1,8 @@
-import { Divider, Switch } from 'antd';
-import { useSettingActions, useSettings } from '@/store/settingStore';
+import { Divider, Switch } from "antd";
+import { useSettingActions, useSettings } from "@/store/settingStore";
 
-import React from 'react';
-import styled from 'styled-components';
+import type React from "react";
+import styled from "styled-components";
 
 // 样式化的设置项容器
 const SettingItem = styled.div`
@@ -26,40 +26,55 @@ const SettingDescription = styled.div`
 `;
 
 const PageSetting: React.FC = () => {
-  const settings = useSettings();
-  const { setSettings } = useSettingActions();
+	const settings = useSettings();
+	const { setSettings } = useSettingActions();
 
-  // 处理面包屑显示切换
-  const handleBreadcrumbChange = (checked: boolean) => {
-    setSettings({ ...settings, breadCrumb: checked });
-  };
+	// 处理面包屑显示切换
+	const handleBreadcrumbChange = (checked: boolean) => {
+		setSettings({ ...settings, breadCrumb: checked });
+	};
 
-  // 处理多标签页启用切换
-  const handleTabsChange = (checked: boolean) => {
-    setSettings({ ...settings, enableTabs: checked });
-  };
+	// 处理多标签页启用切换
+	const handleTabsChange = (checked: boolean) => {
+		setSettings({ ...settings, enableTabs: checked });
+	};
 
-  return (
-    <div>
-      <SettingItem>
-        <div>
-          <SettingTitle>显示面包屑</SettingTitle>
-          <SettingDescription>在页面顶部显示面包屑导航</SettingDescription>
-        </div>
-        <Switch size="small" checked={settings.breadCrumb} onChange={handleBreadcrumbChange} />
-      </SettingItem>
+	// 处理侧边栏主题切换
+	const handleDarkSidebarChange = (checked: boolean) => {
+		setSettings({ ...settings, darkSidebar: checked });
+	};
 
-      <Divider style={{ margin: '12px 0' }} />
+	return (
+		<div>
+			<SettingItem>
+				<div>
+					<SettingTitle>显示面包屑</SettingTitle>
+					<SettingDescription>在页面顶部显示面包屑导航</SettingDescription>
+				</div>
+				<Switch size="small" checked={settings.breadCrumb} onChange={handleBreadcrumbChange} />
+			</SettingItem>
 
-      <SettingItem>
-        <div>
-          <SettingTitle>启用多标签页</SettingTitle>
-          <SettingDescription>开启页面多标签模式</SettingDescription>
-        </div>
-        <Switch size="small" checked={settings.enableTabs} onChange={handleTabsChange} />
-      </SettingItem>
-    </div>
-  );
+			<Divider style={{ margin: "12px 0" }} />
+
+			<SettingItem>
+				<div>
+					<SettingTitle>启用多标签页</SettingTitle>
+					<SettingDescription>开启页面多标签模式</SettingDescription>
+				</div>
+				<Switch size="small" checked={settings.enableTabs} onChange={handleTabsChange} />
+			</SettingItem>
+
+			<Divider style={{ margin: "12px 0" }} />
+
+			<SettingItem>
+				<div>
+					<SettingTitle>侧边栏主题</SettingTitle>
+					<SettingDescription>开启侧边栏暗色主题</SettingDescription>
+				</div>
+				<Switch size="small" checked={settings.darkSidebar} onChange={handleDarkSidebarChange} />
+			</SettingItem>
+		</div>
+	);
 };
 
 export default PageSetting;

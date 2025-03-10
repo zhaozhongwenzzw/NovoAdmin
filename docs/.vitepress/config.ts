@@ -47,6 +47,7 @@ export default defineConfig({
 						{ text: "快速开始", link: "/guide/getting-started" },
 						{ text: "项目结构", link: "/guide/project-structure" },
 						{ text: "最佳实践", link: "/guide/best-practices" },
+						{ text: "开发日志", link: "/dev_plan" },
 					],
 				},
 			],

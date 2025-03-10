@@ -72,6 +72,8 @@ const NavVertical = () => {
 	}, [settings.themeMode, settings.darkSidebar]);
 
 	const changeMenu = (item: MenuItem) => {
+		// 如果点击的菜单项是当前打开的菜单项，则不进行任何操作
+		if (item?.key === firstOpenKey) return;
 		setFirstOpenKey(item?.key as string);
 		// 递归查找最后一级子菜单
 		const findLastChild = (menuItem: MenuItem): MenuItem => {
@@ -143,6 +145,7 @@ const NavFirst = styled.div<{ $themeMode: ThemeMode; $isDarkSidebar: boolean }>`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	gap: 5px;
 `;
 
 const NavFirstItem = styled.div<{ $isActive: boolean; $isDarkTheme?: boolean }>`
@@ -182,8 +185,8 @@ const NavFirstItem = styled.div<{ $isActive: boolean; $isDarkTheme?: boolean }>`
 		background-color: ${(props) => {
 			if (props.$isActive) {
 				return props.$isDarkTheme
-					? "rgba(255, 255, 255, 0.08)" // 暗色主题下的悬停背景
-					: "rgba(var(--colors-palette-gray-500Channel), 0.1)"; // 亮色主题下的悬停背景
+					? "rgba(var(--colors-palette-primary-defaultChannel), 0.15)" // 暗色主题下的激活背景
+					: "var(--colors-antd-primary-color0)"; // 亮色主题下的激活背景
 			}
 			return props.$isDarkTheme
 				? "rgba(255, 255, 255, 0.08)" // 暗色主题下的悬停背景

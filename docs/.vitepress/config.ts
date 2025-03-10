@@ -67,8 +67,8 @@ export default defineConfig({
 		socialLinks: [{ icon: "github", link: "https://github.com/zhaozhongwenzzw/NovoAdmin.git" }],
 		// 页脚
 		footer: {
-			message: "使用 VitePress 构建",
-			copyright: "© 2024 React Admin Team",
+			message: "此文档使用cursor辅助生成,使用 VitePress 构建",
+			copyright: "© 2025 React Admin Team",
 		},
 	},
 });

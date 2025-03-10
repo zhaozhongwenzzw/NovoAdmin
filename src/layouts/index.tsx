@@ -26,7 +26,9 @@ export default memo(() => {
 					? NAV_COLLAPSED_WIDTH
 					: themeLayout === ThemeLayout.VerticalSplit
 						? NAV_FIRST_WIDTH + NAV_WIDTH
-						: NAV_WIDTH,
+						: themeLayout === ThemeLayout.VerticalSplitMini
+							? NAV_FIRST_WIDTH + NAV_COLLAPSED_WIDTH
+							: NAV_WIDTH,
 	};
 	const layoutClassName = useMemo(() => {
 		return cn("flex h-screen overflow-hidden", themeLayout === ThemeLayout.Horizontal ? "flex-col" : "flex-row");

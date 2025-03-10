@@ -6,6 +6,7 @@ import NavVerticalSplit from "./nav-vertical-split";
 export default function Nav({ themeLayout }: { themeLayout: ThemeLayout }) {
 	if (themeLayout === ThemeLayout.Horizontal) return <NavHorizontal />;
 	if (themeLayout === ThemeLayout.Vertical || themeLayout === ThemeLayout.Mini) return <NavVertical />;
-	if (themeLayout === ThemeLayout.VerticalSplit) return <NavVerticalSplit />;
+	if (themeLayout === ThemeLayout.VerticalSplit || themeLayout === ThemeLayout.VerticalSplitMini)
+		return <NavVerticalSplit />;
 	return null;
 }

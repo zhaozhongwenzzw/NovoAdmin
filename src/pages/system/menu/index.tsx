@@ -2,7 +2,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 
 // ant
-import { Button, Space, Modal, Form, Input, Select, Segmented, Tag } from "antd";
+import { Button, Space, Modal, Form, Input, Select, Segmented, Tag, Checkbox, Row, Col } from "antd";
 import type { TableColumnsType } from "antd";
 // 组件
 import TableContainer from "@/components/table/TableContainer";
@@ -25,6 +25,13 @@ import {
 import type { AnimationType } from "@/components/animate/types";
 import type { IconifyIcon } from "@iconify/react/dist/iconify.js";
 import WithTooltipConfirm from "@/components/withTooltipConfirm";
+import { getPermissionsByType } from "@/api/permissions";
+
+// 定义权限列表接口
+interface PermissionOption {
+	label: string;
+	value: string;
+}
 
 const App: React.FC = () => {
 	const [loading, setLoading] = useState(false);
@@ -38,6 +45,9 @@ const App: React.FC = () => {
 
 	const [isInAnimationOpen, setIsInAnimationOpen] = useState(false);
 	const [isOutAnimationOpen, setIsOutAnimationOpen] = useState(false);
+
+	// 添加权限列表状态
+	const [permissionOptions, setPermissionOptions] = useState<PermissionOption[]>([]);
 
 	// 扁平化树形结构
 	const flattenMenuTree = (menus: MenuListResponse[]): MenuListResponse[] => {
@@ -67,6 +77,31 @@ const App: React.FC = () => {
 			console.error("获取菜单出错:", error);
 		}
 	};
+
+	// 获取菜单权限列表
+	const fetchPermissions = async () => {
+		try {
+			const res = await getPermissionsByType("menu");
+			if (res.code === 200) {
+				setPermissionOptions(
+					res.data.map((item: any) => ({
+						label: item.name,
+						value: item.id,
+					})),
+				);
+			} else {
+				console.error("获取权限列表失败", res.message);
+			}
+		} catch (error) {
+			console.error("获取权限列表出错:", error);
+		}
+	};
+
+	// 初始化时获取菜单和权限数据
+	useEffect(() => {
+		fetchMenus();
+		fetchPermissions();
+	}, []);
 
 	// 定义表格列
 	const columns: TableColumnsType<MenuListResponse> = [
@@ -148,6 +183,8 @@ const App: React.FC = () => {
 			component: "",
 			inAnimation: "",
 			outAnimation: "",
+			permissionId: null,
+			autoCreatePermission: false,
 		});
 	};
 
@@ -163,6 +200,7 @@ const App: React.FC = () => {
 			component: record.component,
 			inAnimation: record.inAnimation,
 			outAnimation: record.outAnimation,
+			permissionId: record.permissionId,
 		});
 		setIsEditModalOpen(true);
 	};
@@ -209,6 +247,8 @@ const App: React.FC = () => {
 				if (data.code !== 200) {
 					throw new Error(data.message);
 				}
+				fetchMenus();
+				setIsModalOpen(false);
 				return "添加成功";
 			},
 			error: (error) => {
@@ -222,10 +262,6 @@ const App: React.FC = () => {
 		setIsModalOpen(true);
 		form.resetFields();
 	};
-
-	useEffect(() => {
-		fetchMenus();
-	}, []);
 
 	return (
 		<Main>
@@ -267,96 +303,135 @@ const App: React.FC = () => {
 					form.resetFields();
 				}}
 				footer={null}
+				width={700}
 			>
-				<Form form={form} layout="horizontal" labelCol={{ span: 4 }} onFinish={handleUpdate}>
-					<Form.Item name="id" hidden>
-						<Input />
-					</Form.Item>
-					<Form.Item label="类型" name="type" rules={[{ required: true, message: "请选择类型" }]}>
-						<Segmented
-							options={[
-								{ label: "目录", value: "directory" },
-								{ label: "菜单", value: "menu" },
-							]}
-						/>
-					</Form.Item>
-					<Form.Item label="菜单名称" name="name" rules={[{ required: true, message: "请输入菜单名称" }]}>
-						<Input placeholder="请输入菜单名称" />
-					</Form.Item>
-					<Form.Item label="路径" name="path" rules={[{ required: true, message: "请输入路径" }]}>
-						<Input placeholder="请输入路径" />
-					</Form.Item>
-					<Form.Item label="图标" name="icon">
-						<Input placeholder="请输入图标名称" />
-					</Form.Item>
-					<Form.Item label="父级菜单" name="parentId">
-						<Select
-							placeholder="请选择父级菜单"
-							allowClear
-							showSearch
-							optionFilterProp="label"
-							options={flatMenuData.map((item) => ({
-								label: item.name,
-								value: item.id,
-							}))}
-						/>
-					</Form.Item>
-					<Form.Item label="排序" name="orderNum">
-						<Input type="number" placeholder="请输入排序号" />
-					</Form.Item>
+				<Form form={form} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} onFinish={handleUpdate}>
+					<Row gutter={[16, 0]}>
+						<Col xs={24} xl={12}>
+							<Form.Item name="id" hidden>
+								<Input />
+							</Form.Item>
+							<Form.Item label="类型" name="type" rules={[{ required: true, message: "请选择类型" }]}>
+								<Segmented
+									options={[
+										{ label: "目录", value: "directory" },
+										{ label: "菜单", value: "menu" },
+									]}
+								/>
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="排序" name="orderNum">
+								<Input type="number" placeholder="请输入排序号" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="菜单名称" name="name" rules={[{ required: true, message: "请输入菜单名称" }]}>
+								<Input placeholder="请输入菜单名称" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="路径" name="path" rules={[{ required: true, message: "请输入路径" }]}>
+								<Input placeholder="请输入路径" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="图标" name="icon">
+								<Input placeholder="请输入图标名称" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="父级菜单" name="parentId">
+								<Select
+									placeholder="请选择父级菜单"
+									allowClear
+									showSearch
+									optionFilterProp="label"
+									options={flatMenuData.map((item) => ({
+										label: item.name,
+										value: item.id,
+									}))}
+								/>
+							</Form.Item>
+						</Col>
 
-					{type === "menu" ? (
-						<Form.Item label="组件" name="component">
-							<Input placeholder="请输入组件路径" />
-						</Form.Item>
-					) : null}
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item label="组件" name="component">
+									<Input placeholder="请输入组件路径" />
+								</Form.Item>
+							</Col>
+						) : null}
 
-					{type === "menu" ? (
-						<Form.Item label="进场动画" name="inAnimation">
-							<Select
-								placeholder="请选择动画效果"
-								open={isInAnimationOpen}
-								onDropdownVisibleChange={(visible: boolean) => setIsInAnimationOpen(visible)}
-								dropdownRender={() => (
-									<AnimateSelect
-										onSelect={(type: AnimationType) => {
-											form.setFieldValue("inAnimation", type);
-											setIsInAnimationOpen(false);
-										}}
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item label="关联权限" name="permissionId">
+									<Select
+										placeholder="请选择关联权限"
+										allowClear
+										showSearch
+										optionFilterProp="label"
+										options={permissionOptions}
 									/>
-								)}
-								popupMatchSelectWidth={false}
-								options={[]}
-							/>
-						</Form.Item>
-					) : null}
-					{type === "menu" ? (
-						<Form.Item label="离场动画" name="outAnimation">
-							<Select
-								placeholder="请选择动画效果"
-								open={isOutAnimationOpen}
-								onDropdownVisibleChange={(visible: boolean) => setIsOutAnimationOpen(visible)}
-								dropdownRender={() => (
-									<AnimateSelect
-										onSelect={(type: AnimationType) => {
-											form.setFieldValue("outAnimation", type);
-											setIsOutAnimationOpen(false);
-										}}
+								</Form.Item>
+							</Col>
+						) : null}
+
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item label="进场动画" name="inAnimation">
+									<Select
+										placeholder="请选择动画效果"
+										open={isInAnimationOpen}
+										onDropdownVisibleChange={(visible: boolean) => setIsInAnimationOpen(visible)}
+										dropdownRender={() => (
+											<AnimateSelect
+												onSelect={(type: AnimationType) => {
+													form.setFieldValue("inAnimation", type);
+													setIsInAnimationOpen(false);
+												}}
+											/>
+										)}
+										popupMatchSelectWidth={false}
+										options={[]}
 									/>
-								)}
-								popupMatchSelectWidth={false}
-								options={[]}
-							/>
-						</Form.Item>
-					) : null}
-					<Form.Item className="text-right mb-0">
-						<Space>
-							<Button onClick={() => setIsEditModalOpen(false)}>取消</Button>
-							<Button type="primary" htmlType="submit">
-								确定
-							</Button>
-						</Space>
-					</Form.Item>
+								</Form.Item>
+							</Col>
+						) : null}
+
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item label="离场动画" name="outAnimation">
+									<Select
+										placeholder="请选择动画效果"
+										open={isOutAnimationOpen}
+										onDropdownVisibleChange={(visible: boolean) => setIsOutAnimationOpen(visible)}
+										dropdownRender={() => (
+											<AnimateSelect
+												onSelect={(type: AnimationType) => {
+													form.setFieldValue("outAnimation", type);
+													setIsOutAnimationOpen(false);
+												}}
+											/>
+										)}
+										popupMatchSelectWidth={false}
+										options={[]}
+									/>
+								</Form.Item>
+							</Col>
+						) : null}
+
+						<Col span={24}>
+							<Form.Item className="text-right mb-0">
+								<Space>
+									<Button onClick={() => setIsEditModalOpen(false)}>取消</Button>
+									<Button type="primary" htmlType="submit">
+										确定
+									</Button>
+								</Space>
+							</Form.Item>
+						</Col>
+					</Row>
 				</Form>
 			</Modal>
 
@@ -368,95 +443,145 @@ const App: React.FC = () => {
 					form.resetFields();
 				}}
 				footer={null}
+				width={800}
 			>
-				<Form form={form} layout="horizontal" labelCol={{ span: 4 }} onFinish={handleAdd}>
-					<Form.Item label="类型" name="type" rules={[{ required: true, message: "请选择类型" }]}>
-						<Segmented
-							options={[
-								{ label: "目录", value: "directory" },
-								{ label: "菜单", value: "menu" },
-							]}
-						/>
-					</Form.Item>
+				<Form form={form} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} onFinish={handleAdd}>
+					<Row gutter={[16, 0]}>
+						<Col xs={24} xl={12}>
+							<Form.Item label="类型" name="type" rules={[{ required: true, message: "请选择类型" }]}>
+								<Segmented
+									options={[
+										{ label: "目录", value: "directory" },
+										{ label: "菜单", value: "menu" },
+									]}
+								/>
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="排序" name="orderNum">
+								<Input type="number" placeholder="请输入排序号" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="菜单名称" name="name" rules={[{ required: true, message: "请输入菜单名称" }]}>
+								<Input placeholder="请输入菜单名称" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="路径" name="path" rules={[{ required: true, message: "请输入路径" }]}>
+								<Input placeholder="请输入路径" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="图标" name="icon">
+								<Input placeholder="请输入图标名称" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} xl={12}>
+							<Form.Item label="父级菜单" name="parentId">
+								<Select
+									placeholder="请选择父级菜单"
+									allowClear
+									showSearch
+									optionFilterProp="label"
+									options={flatMenuData.map((item) => ({
+										label: item.name,
+										value: item.id,
+									}))}
+								/>
+							</Form.Item>
+						</Col>
 
-					<Form.Item label="菜单名称" name="name" rules={[{ required: true, message: "请输入菜单名称" }]}>
-						<Input placeholder="请输入菜单名称" />
-					</Form.Item>
-					<Form.Item label="路径" name="path" rules={[{ required: true, message: "请输入路径" }]}>
-						<Input placeholder="请输入路径" />
-					</Form.Item>
-					<Form.Item label="图标" name="icon">
-						<Input placeholder="请输入图标名称" />
-					</Form.Item>
-					<Form.Item label="父级菜单" name="parentId">
-						<Select
-							placeholder="请选择父级菜单"
-							allowClear
-							showSearch
-							optionFilterProp="label"
-							options={flatMenuData.map((item) => ({
-								label: item.name,
-								value: item.id,
-							}))}
-						/>
-					</Form.Item>
-					<Form.Item label="排序" name="orderNum">
-						<Input type="number" placeholder="请输入排序号" />
-					</Form.Item>
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item label="组件" name="component">
+									<Input placeholder="请输入组件路径" />
+								</Form.Item>
+							</Col>
+						) : null}
 
-					{type === "menu" ? (
-						<Form.Item label="组件" name="component">
-							<Input placeholder="请输入组件路径" />
-						</Form.Item>
-					) : null}
-
-					{type === "menu" ? (
-						<Form.Item label="进场动画" name="inAnimation">
-							<Select
-								placeholder="请选择动画效果"
-								open={isInAnimationOpen}
-								onDropdownVisibleChange={(visible: boolean) => setIsInAnimationOpen(visible)}
-								dropdownRender={() => (
-									<AnimateSelect
-										onSelect={(type: AnimationType) => {
-											form.setFieldValue("inAnimation", type);
-											setIsInAnimationOpen(false);
-										}}
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item label="关联权限" name="permissionId">
+									<Select
+										placeholder="请选择关联权限"
+										allowClear
+										showSearch
+										optionFilterProp="label"
+										options={permissionOptions}
 									/>
-								)}
-								popupMatchSelectWidth={false}
-								options={[]}
-							/>
-						</Form.Item>
-					) : null}
-					{type === "menu" ? (
-						<Form.Item label="离场动画" name="outAnimation">
-							<Select
-								placeholder="请选择动画效果"
-								open={isOutAnimationOpen}
-								onDropdownVisibleChange={(visible: boolean) => setIsOutAnimationOpen(visible)}
-								dropdownRender={() => (
-									<AnimateSelect
-										onSelect={(type: AnimationType) => {
-											form.setFieldValue("outAnimation", type);
-											setIsOutAnimationOpen(false);
-										}}
-									/>
-								)}
-								popupMatchSelectWidth={false}
-								options={[]}
-							/>
-						</Form.Item>
-					) : null}
+								</Form.Item>
+							</Col>
+						) : null}
 
-					<Form.Item className="text-right mb-0">
-						<Space>
-							<Button onClick={() => setIsModalOpen(false)}>取消</Button>
-							<Button type="primary" htmlType="submit">
-								确定
-							</Button>
-						</Space>
-					</Form.Item>
+						{type === "menu" ? (
+							<Col xs={24} xl={24}>
+								<Form.Item
+									label="自动创建"
+									name="autoCreatePermission"
+									valuePropName="checked"
+									tooltip="选中后将自动创建与菜单同名的权限"
+								>
+									<Checkbox>自动创建对应权限</Checkbox>
+								</Form.Item>
+							</Col>
+						) : null}
+
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item label="进场动画" name="inAnimation">
+									<Select
+										placeholder="请选择动画效果"
+										open={isInAnimationOpen}
+										onDropdownVisibleChange={(visible: boolean) => setIsInAnimationOpen(visible)}
+										dropdownRender={() => (
+											<AnimateSelect
+												onSelect={(type: AnimationType) => {
+													form.setFieldValue("inAnimation", type);
+													setIsInAnimationOpen(false);
+												}}
+											/>
+										)}
+										popupMatchSelectWidth={false}
+										options={[]}
+									/>
+								</Form.Item>
+							</Col>
+						) : null}
+
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item label="离场动画" name="outAnimation">
+									<Select
+										placeholder="请选择动画效果"
+										open={isOutAnimationOpen}
+										onDropdownVisibleChange={(visible: boolean) => setIsOutAnimationOpen(visible)}
+										dropdownRender={() => (
+											<AnimateSelect
+												onSelect={(type: AnimationType) => {
+													form.setFieldValue("outAnimation", type);
+													setIsOutAnimationOpen(false);
+												}}
+											/>
+										)}
+										popupMatchSelectWidth={false}
+										options={[]}
+									/>
+								</Form.Item>
+							</Col>
+						) : null}
+
+						<Col span={24}>
+							<Form.Item className="text-right mb-0">
+								<Space>
+									<Button onClick={() => setIsModalOpen(false)}>取消</Button>
+									<Button type="primary" htmlType="submit">
+										确定
+									</Button>
+								</Space>
+							</Form.Item>
+						</Col>
+					</Row>
 				</Form>
 			</Modal>
 		</Main>

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { TablePaginationConfig } from "antd";
 import type { FormInstance } from "antd/lib/form";
 
@@ -29,9 +29,9 @@ interface UsePaginationResult<T extends PaginationParams> {
 	// 处理分页变化的函数
 	handlePaginationChange: (pagination: TablePaginationConfig) => void;
 	// 处理搜索的函数
-	handleSearch: () => void;
+	handleSearch: () => T;
 	// 处理重置的函数
-	handleReset: () => void;
+	handleReset: () => T;
 	// 设置总数的函数
 	setTotal: (total: number) => void;
 	// 刷新当前页面
@@ -57,12 +57,19 @@ export const usePagination = <T extends PaginationParams>(
 	// 查询参数（不包含分页）
 	const [searchParams, setSearchParams] = useState<Omit<T, "page" | "pageSize">>({} as Omit<T, "page" | "pageSize">);
 
-	// 合并分页参数和查询参数
-	const params = {
-		page: pagination.current,
-		pageSize: pagination.pageSize,
-		...searchParams,
-	} as T;
+	// 构建查询参数的函数
+	const buildParams = (values: Omit<T, "page" | "pageSize">, page: number, pageSize: number): T =>
+		({
+			page,
+			pageSize,
+			...values,
+		}) as T;
+
+	// 使用useMemo计算当前params
+	const params = useMemo(
+		() => buildParams(searchParams, pagination.current, pagination.pageSize),
+		[searchParams, pagination.current, pagination.pageSize],
+	);
 
 	// 处理分页变化
 	const handlePaginationChange = useCallback(
@@ -77,31 +84,43 @@ export const usePagination = <T extends PaginationParams>(
 		[defaultCurrent, defaultPageSize],
 	);
 
-	// 处理搜索
+	// 处理搜索 - 返回最新参数
 	const handleSearch = useCallback(() => {
 		if (form) {
-			const values = form.getFieldsValue();
-			setSearchParams(values as Omit<T, "page" | "pageSize">);
-			// 搜索时回到第一页
-			setPagination((prev) => ({
-				...prev,
-				current: 1,
-			}));
-		}
-	}, [form]);
+			// 获取最新表单值
+			const values = form.getFieldsValue() as Omit<T, "page" | "pageSize">;
 
-	// 处理重置
+			// 构建最新参数
+			const newParams = buildParams(values, 1, pagination.pageSize);
+
+			// 异步更新状态
+			setSearchParams(values);
+			setPagination((prev) => ({ ...prev, current: 1 }));
+
+			// 立即返回最新参数
+			return newParams;
+		}
+		return params;
+	}, [form, pagination.pageSize]);
+
+	// 处理重置 - 返回最新参数
 	const handleReset = useCallback(() => {
 		if (form) {
+			// 重置表单
 			form.resetFields();
+
+			// 构建重置后的参数
+			const newParams = buildParams({} as Omit<T, "page" | "pageSize">, 1, pagination.pageSize);
+
+			// 异步更新状态
 			setSearchParams({} as Omit<T, "page" | "pageSize">);
-			// 重置时回到第一页
-			setPagination((prev) => ({
-				...prev,
-				current: 1,
-			}));
+			setPagination((prev) => ({ ...prev, current: 1 }));
+
+			// 立即返回重置后的参数
+			return newParams;
 		}
-	}, [form]);
+		return params;
+	}, [form, pagination.pageSize]);
 
 	// 设置总数
 	const setTotal = useCallback((total: number) => {

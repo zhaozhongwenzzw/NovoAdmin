@@ -1,4 +1,146 @@
-# 开发计划记录
+# 开发计划文档
+
+## 2025年3月13日 - 权限模块前后端对接
+
+### 工作摘要
+
+今天完成了权限管理模块的前后端对接工作，主要围绕权限与菜单的关联关系进行开发，实现了权限接口对接、菜单权限关联以及相关后端逻辑。
+
+### 详细工作内容
+
+#### 1. 权限接口对接（前端部分）
+
+完成了权限模块的前端接口对接工作，具体内容包括：
+
+- 优化了`usePagination`钩子，使用`useMemo`和构建参数函数解决了查询参数更新不及时的问题
+- 实现了权限管理页面的新增/编辑统一表单，根据状态动态切换表单标题和行为
+- 为权限标识字段在编辑模式下添加了禁用属性，保护关键标识不被误改
+- 使用`toast.promise`优化接口调用的状态反馈，提升用户体验
+- 重构了搜索逻辑，确保获取到最新的查询参数
+
+#### 2. 菜单管理新增权限对接
+
+为菜单管理模块增加了权限关联功能：
+
+- 集成`getPermissionsByType`接口获取菜单类型权限列表用于下拉选择
+- 在菜单表单中新增"关联权限"下拉选择和"自动创建对应权限"复选框
+- 区分新增和编辑模式的表单行为，编辑模式下不显示自动创建选项
+- 使用`Row`和`Col`组件实现响应式布局，支持不同设备尺寸下的良好展示
+- 优化模态框宽度和表单标签布局，提升用户操作体验
+
+#### 3. 后端权限模块新增和菜单关联查询逻辑
+
+- 实现了权限按类型筛选的接口
+- 设计了权限与菜单的关联存储和查询逻辑
+- 完成自动创建权限的后端支持
+- 建立菜单与权限的双向关联机制
+
+### 修改文件
+
+| 文件路径 | 修改内容 |
+|---------|----------|
+| src/hooks/usePagination.ts | 优化查询参数构建逻辑，解决状态更新异步问题 |
+| src/pages/system/permission/index.tsx | 实现权限管理页面，新增/编辑共用表单 |
+| src/pages/system/menu/index.tsx | 添加权限关联功能，优化表单布局 |
+| src/api/permissions/index.ts | 实现权限类型筛选接口 |
+| src/api/system/permission/index.ts | 完善权限管理相关接口 |
+
+### 遇到的问题与解决方案
+
+**问题1：表单查询参数更新不及时**
+
+在使用`usePagination`钩子进行表单查询时，由于React状态更新是异步的，导致调用`getList()`函数时使用的仍是旧的查询参数。
+
+**解决方案**：
+
+重构`usePagination`钩子，使`handleSearch`和`handleReset`函数立即返回最新的查询参数，而不依赖于状态更新：
+
+```typescript
+// 处理搜索 - 返回最新参数
+const handleSearch = useCallback(() => {
+  if (form) {
+    // 获取最新表单值
+    const values = form.getFieldsValue() as Omit<T, "page" | "pageSize">;
+    
+    // 构建最新参数
+    const newParams = buildParams(values, 1, pagination.pageSize);
+    
+    // 异步更新状态
+    setSearchParams(values);
+    setPagination(prev => ({ ...prev, current: 1 }));
+    
+    // 立即返回最新参数
+    return newParams;
+  }
+  return params;
+}, [form, pagination.pageSize]);
+```
+
+然后在组件中这样使用：
+
+```typescript
+const handleSearch = () => {
+  const newParams = triggerSearch(); // 获取最新参数
+  getList(newParams); // 使用最新参数查询
+};
+```
+
+**问题2：权限与菜单关联展示不合理**
+
+菜单与权限关联信息需要在不同场景下有不同展示方式。
+
+**解决方案**：
+
+使用条件渲染和响应式布局结合，根据菜单类型和操作模式动态显示表单项：
+
+```typescript
+{type === "menu" ? (
+  <Col xs={24} xl={12}>
+    <Form.Item label="关联权限" name="permissionId">
+      <Select
+        placeholder="请选择关联权限"
+        allowClear
+        showSearch
+        optionFilterProp="label"
+        options={permissionOptions}
+      />
+    </Form.Item>
+  </Col>
+) : null}
+
+{/* 仅在新增菜单时显示 */}
+{type === "menu" ? (
+  <Col xs={24} xl={24}>
+    <Form.Item
+      label="自动创建"
+      name="autoCreatePermission"
+      valuePropName="checked"
+      tooltip="选中后将自动创建与菜单同名的权限"
+    >
+      <Checkbox>自动创建对应权限</Checkbox>
+    </Form.Item>
+  </Col>
+) : null}
+```
+
+### 下一步计划
+
+1. **角色权限分配功能**
+   - 实现角色权限树状选择组件
+   - 完成角色权限分配与保存
+
+2. **权限前端集成**
+   - 实现基于权限的路由控制
+   - 开发操作级别权限控制组件
+
+3. **权限缓存与性能优化**
+   - 优化权限数据加载和缓存策略
+   - 减少权限验证对性能的影响
+
+4. **权限系统文档完善**
+   - 编写权限使用指南
+   - 完成权限设计文档
+
 
 ## 2025年3月12日
 

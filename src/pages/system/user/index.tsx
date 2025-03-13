@@ -11,6 +11,7 @@ import {
 	updateUser,
 	type UpdateUserParams,
 	deleteUser,
+	type UserListRequest,
 } from "@/api/system/user";
 import { getColumns } from "./config";
 import { UserStatus } from "@/types/user";
@@ -40,13 +41,13 @@ const App: React.FC = () => {
 		handleSearch: triggerSearch,
 		handleReset: triggerReset,
 		setTotal,
-	} = usePagination({ form: searchForm });
+	} = usePagination<UserListRequest>({ form: searchForm });
 
 	// 获取列表数据
-	const getList = async () => {
+	const getList = async (searchParams = params) => {
 		setLoading(true);
 		try {
-			const res = await getUserList(params);
+			const res = await getUserList(searchParams);
 			setLoading(false);
 			if (res.code === 200) {
 				setTableData(res.data.list);
@@ -62,14 +63,14 @@ const App: React.FC = () => {
 
 	// 搜索处理
 	const handleSearch = () => {
-		triggerSearch();
-		getList();
+		const newParams = triggerSearch(); // 获取最新参数
+		getList(newParams); // 使用最新参数查询
 	};
 
 	// 重置处理
 	const handleReset = () => {
-		triggerReset();
-		getList();
+		const newParams = triggerReset(); // 获取重置后的参数
+		getList(newParams); // 使用重置后的参数查询
 	};
 
 	const handleAdd = async (values: AddUserParams) => {

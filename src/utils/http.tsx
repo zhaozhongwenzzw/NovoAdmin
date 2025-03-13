@@ -8,7 +8,7 @@ import type { RequestMethods, PureHttpError, PureHttpRequestConfig, CustomConfig
 import type { BaseResponse } from "@/types/baseType/response";
 import NProgress from "./nprogress";
 import { getToken } from "@/utils/auth";
-import { message } from "antd";
+import { toast } from "sonner";
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 const whiteList = ["/refreshToken", "/login"];
 const timeout = 30000;
@@ -99,7 +99,7 @@ class PureHttp {
 				// 根据配置决定是否展示 antd 的错误提示，默认展示
 				const config = error.config as PureHttpRequestConfig;
 				if (!config || config.isShowMessage !== false) {
-					message.error(errMsg);
+					toast.error(errMsg);
 				}
 				if (status === 401) {
 					window.localStorage.clear();

@@ -40,10 +40,10 @@ export const getColumns = (props: ConfigType) => [
 		key: "operation",
 		width: 120,
 		render: (_: any, record: RoleListResponse) => (
-			<Space size={15}>
+			<Space size={20}>
 				<WithTooltipConfirm tooltipTitle="编辑" showPopconfirm={false}>
 					<Iconify
-						size={21}
+						size={20}
 						className="cursor-pointer text-primary"
 						icon="tabler:edit"
 						onClick={() => props.handleEdit(record)}
@@ -51,7 +51,7 @@ export const getColumns = (props: ConfigType) => [
 				</WithTooltipConfirm>
 				<WithTooltipConfirm tooltipTitle="菜单权限" showPopconfirm={false}>
 					<Iconify
-						size={21}
+						size={20}
 						className="cursor-pointer text-primary"
 						icon="hugeicons:menu-square"
 						onClick={() => props.handleMenu(record)}
@@ -62,7 +62,7 @@ export const getColumns = (props: ConfigType) => [
 					popconfirmTitle="确定删除该角色吗？"
 					onConfirm={() => props.handleDelete(record)}
 				>
-					<Iconify size={21} className="cursor-pointer text-error" icon="tabler:trash" />
+					<Iconify size={20} className="cursor-pointer text-error" icon="tabler:trash" />
 				</WithTooltipConfirm>
 			</Space>
 		),

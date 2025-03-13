@@ -113,7 +113,7 @@ const App: React.FC = () => {
 				<Space size={20}>
 					<WithTooltipConfirm tooltipTitle="新增子菜单" showPopconfirm={false}>
 						<Iconify
-							size={16}
+							size={21}
 							className="cursor-pointer text-primary"
 							icon="tabler:category-plus"
 							onClick={() => handleAddSub(record)}
@@ -121,14 +121,14 @@ const App: React.FC = () => {
 					</WithTooltipConfirm>
 					<WithTooltipConfirm tooltipTitle="编辑菜单" showPopconfirm={false}>
 						<Iconify
-							size={16}
+							size={21}
 							className="cursor-pointer text-primary"
 							icon="tabler:edit"
 							onClick={() => handleEdit(record)}
 						/>
 					</WithTooltipConfirm>
 					<WithTooltipConfirm tooltipTitle="删除菜单" onConfirm={() => handleDelete(record)}>
-						<Iconify size={16} className="cursor-pointer text-error" icon="tabler:layout-grid-remove" />
+						<Iconify size={21} className="cursor-pointer text-error" icon="tabler:layout-grid-remove" />
 					</WithTooltipConfirm>
 				</Space>
 			),
@@ -286,11 +286,9 @@ const App: React.FC = () => {
 					<Form.Item label="路径" name="path" rules={[{ required: true, message: "请输入路径" }]}>
 						<Input placeholder="请输入路径" />
 					</Form.Item>
-					{type === "directory" ? (
-						<Form.Item label="图标" name="icon">
-							<Input placeholder="请输入图标名称" />
-						</Form.Item>
-					) : null}
+					<Form.Item label="图标" name="icon">
+						<Input placeholder="请输入图标名称" />
+					</Form.Item>
 					<Form.Item label="父级菜单" name="parentId">
 						<Select
 							placeholder="请选择父级菜单"
@@ -387,11 +385,9 @@ const App: React.FC = () => {
 					<Form.Item label="路径" name="path" rules={[{ required: true, message: "请输入路径" }]}>
 						<Input placeholder="请输入路径" />
 					</Form.Item>
-					{type === "directory" ? (
-						<Form.Item label="图标" name="icon">
-							<Input placeholder="请输入图标名称" />
-						</Form.Item>
-					) : null}
+					<Form.Item label="图标" name="icon">
+						<Input placeholder="请输入图标名称" />
+					</Form.Item>
 					<Form.Item label="父级菜单" name="parentId">
 						<Select
 							placeholder="请选择父级菜单"

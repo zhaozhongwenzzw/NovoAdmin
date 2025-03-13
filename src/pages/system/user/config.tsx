@@ -75,12 +75,12 @@ export const getColumns = (props: ConfigType): TableColumnsType<UserListResponse
 		fixed: "right",
 		width: 120,
 		render: (_: any, record: UserListResponse) => (
-			<Space size={15}>
+			<Space size={20}>
 				<WithTooltipConfirm tooltipTitle="编辑" showPopconfirm={false}>
 					<Iconify
 						size={21}
 						className="cursor-pointer text-primary"
-						icon="la:user-edit"
+						icon="lucide:user-pen"
 						onClick={() => props.handleEdit(record)}
 					/>
 				</WithTooltipConfirm>

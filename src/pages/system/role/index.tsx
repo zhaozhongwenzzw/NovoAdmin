@@ -17,7 +17,7 @@ import { getColumns } from "./config";
 import Main from "@/components/main";
 import { Iconify } from "@/components/icon";
 import { usePagination } from "@/hooks/usePagination";
-import { cn } from "@/utils/cn";
+import RoleTree from "./roleTree";
 
 const RolePage: React.FC = () => {
 	const [loading, setLoading] = useState(false);
@@ -196,35 +196,7 @@ const RolePage: React.FC = () => {
 					onRefresh={getList}
 					onPaginationChange={handlePaginationChange}
 				/>
-				<div className={cn("shrink-0 transition-all duration-300 overflow-hidden", menuModalOpen ? "w-[25%]" : "w-0")}>
-					<Card
-						title={`菜单权限(${menuData?.name})`}
-						className="h-[98%] w-full"
-						extra={
-							<Space className="cursor-pointer">
-								<Iconify
-									icon="material-symbols:close"
-									className="text-xl text-primary "
-									onClick={() => setMenuModalOpen(false)}
-								/>
-								<Iconify
-									icon="material-symbols:check"
-									className="text-xl text-primary"
-									onClick={() => {
-										// 处理确认逻辑
-										setMenuModalOpen(false);
-									}}
-								/>
-							</Space>
-						}
-					>
-						<div className="flex flex-col gap-4">
-							<div className="flex items-center gap-2">
-								<span>全部</span>
-							</div>
-						</div>
-					</Card>
-				</div>
+				<RoleTree menuModalOpen={menuModalOpen} setMenuModalOpen={setMenuModalOpen} menuData={menuData} />
 			</div>
 
 			{/* 新增角色弹窗 */}

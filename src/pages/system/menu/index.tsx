@@ -25,7 +25,7 @@ import {
 import type { AnimationType } from "@/components/animate/types";
 import type { IconifyIcon } from "@iconify/react/dist/iconify.js";
 import WithTooltipConfirm from "@/components/withTooltipConfirm";
-import { getPermissionsByType } from "@/api/permissions";
+import { getPermissionsByType, type PermissionList } from "@/api/permissions";
 
 // 定义权限列表接口
 interface PermissionOption {
@@ -84,9 +84,9 @@ const App: React.FC = () => {
 			const res = await getPermissionsByType("menu");
 			if (res.code === 200) {
 				setPermissionOptions(
-					res.data.map((item: any) => ({
+					res.data.map((item: PermissionList) => ({
 						label: item.name,
-						value: item.id,
+						value: item.identifier,
 					})),
 				);
 			} else {
@@ -183,8 +183,8 @@ const App: React.FC = () => {
 			component: "",
 			inAnimation: "",
 			outAnimation: "",
-			permissionId: null,
-			autoCreatePermission: false,
+			identifier: null,
+			autoCreatePermission: true,
 		});
 	};
 
@@ -200,7 +200,7 @@ const App: React.FC = () => {
 			component: record.component,
 			inAnimation: record.inAnimation,
 			outAnimation: record.outAnimation,
-			permissionId: record.permissionId,
+			identifier: record.identifier,
 		});
 		setIsEditModalOpen(true);
 	};
@@ -303,7 +303,7 @@ const App: React.FC = () => {
 					form.resetFields();
 				}}
 				footer={null}
-				width={700}
+				width="50%"
 			>
 				<Form form={form} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} onFinish={handleUpdate}>
 					<Row gutter={[16, 0]}>
@@ -365,7 +365,7 @@ const App: React.FC = () => {
 
 						{type === "menu" ? (
 							<Col xs={24} xl={12}>
-								<Form.Item label="关联权限" name="permissionId">
+								<Form.Item label="关联权限" name="identifier">
 									<Select
 										placeholder="请选择关联权限"
 										allowClear
@@ -443,7 +443,7 @@ const App: React.FC = () => {
 					form.resetFields();
 				}}
 				footer={null}
-				width={800}
+				width="50%"
 			>
 				<Form form={form} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} onFinish={handleAdd}>
 					<Row gutter={[16, 0]}>
@@ -502,7 +502,7 @@ const App: React.FC = () => {
 
 						{type === "menu" ? (
 							<Col xs={24} xl={12}>
-								<Form.Item label="关联权限" name="permissionId">
+								<Form.Item label="关联权限" name="identifier">
 									<Select
 										placeholder="请选择关联权限"
 										allowClear
@@ -513,20 +513,6 @@ const App: React.FC = () => {
 								</Form.Item>
 							</Col>
 						) : null}
-
-						{type === "menu" ? (
-							<Col xs={24} xl={24}>
-								<Form.Item
-									label="自动创建"
-									name="autoCreatePermission"
-									valuePropName="checked"
-									tooltip="选中后将自动创建与菜单同名的权限"
-								>
-									<Checkbox>自动创建对应权限</Checkbox>
-								</Form.Item>
-							</Col>
-						) : null}
-
 						{type === "menu" ? (
 							<Col xs={24} xl={12}>
 								<Form.Item label="进场动画" name="inAnimation">
@@ -571,6 +557,18 @@ const App: React.FC = () => {
 							</Col>
 						) : null}
 
+						{type === "menu" ? (
+							<Col xs={24} xl={12}>
+								<Form.Item
+									label="自动创建"
+									name="autoCreatePermission"
+									valuePropName="checked"
+									tooltip="选中后将自动创建与菜单同名的权限,如果已经手动选择了权限,则不会自动创建"
+								>
+									<Checkbox>自动创建对应权限</Checkbox>
+								</Form.Item>
+							</Col>
+						) : null}
 						<Col span={24}>
 							<Form.Item className="text-right mb-0">
 								<Space>

@@ -65,3 +65,18 @@ export const updateRole = (params: UpdateRoleDto) => {
 export const deleteRole = (params: DeleteRoleDto) => {
 	return http.post<boolean>("/roles/delete", params);
 };
+
+// 获取角色已绑定权限
+export interface RoleMenuResponse {
+	identifier: string;
+	menuId: string;
+	menuName: string;
+}
+export const getRoleMenu = (params: { id: string; type: string }) => {
+	return http.post<RoleMenuResponse[]>("/roles/findRolePermissions", params);
+};
+
+// 更新角色菜单权限
+export const updateRoleMenu = (params: { roleId: string; menuIds: string[] }) => {
+	return http.post<boolean>("/roles/bindMenuPermissions", params);
+};

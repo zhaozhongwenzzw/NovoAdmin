@@ -8,10 +8,13 @@ import {
 	getRoleList,
 	updateRole,
 	deleteRole,
+	getRoleMenu,
+	updateRoleMenu,
 	type RoleListResponse,
 	type CreateRoleDto,
 	type UpdateRoleDto,
 	type QueryRoleDto,
+	type RoleMenuResponse,
 } from "@/api/system/role";
 import { getColumns } from "./config";
 import Main from "@/components/main";
@@ -37,7 +40,6 @@ const RolePage: React.FC = () => {
 		handleReset: triggerReset,
 		setTotal,
 	} = usePagination<QueryRoleDto>({ form: searchForm });
-
 	// 获取角色列表数据
 	const getList = async () => {
 		setLoading(true);
@@ -140,16 +142,47 @@ const RolePage: React.FC = () => {
 	const handleMenu = (record: RoleListResponse) => {
 		setMenuData(record);
 		setMenuModalOpen(true);
+		getRoleData(record);
 	};
 
 	// 使用传入handleEdit函数来获取完整的列配置
 	const tableColumns = getColumns({ handleEdit, handleDelete, handleMenu });
+
+	//获取角色已绑定的菜单权限
+	const [roleData, setRoleData] = useState<RoleMenuResponse[]>([]);
+	const [activeRoleRow, setActiveRoleRow] = useState<RoleListResponse>({} as RoleListResponse);
+	const getRoleData = async (record: RoleListResponse) => {
+		setActiveRoleRow(record);
+		const res = await getRoleMenu({ id: record.id, type: "menu" });
+		if (res.code === 200) {
+			setRoleData(res.data);
+		} else {
+			toast.error(res.message);
+		}
+	};
 
 	// 初始加载
 	useEffect(() => {
 		getList();
 	}, [pagination.current, pagination.pageSize]);
 
+	// 提交角色菜单权限
+	const handleSubmitRoleMenu = (checkedKeys: React.Key[]) => {
+		toast.promise(updateRoleMenu({ roleId: activeRoleRow?.id, menuIds: checkedKeys as string[] }), {
+			loading: "提交角色菜单权限中...",
+			success: (res) => {
+				if (res.code !== 200) {
+					throw new Error(res.message);
+				}
+				getList();
+				return res.message;
+			},
+			error: (error) => {
+				console.error(error);
+				return error.message;
+			},
+		});
+	};
 	return (
 		<Main>
 			<Card>
@@ -196,7 +229,13 @@ const RolePage: React.FC = () => {
 					onRefresh={getList}
 					onPaginationChange={handlePaginationChange}
 				/>
-				<RoleTree menuModalOpen={menuModalOpen} setMenuModalOpen={setMenuModalOpen} menuData={menuData} />
+				<RoleTree
+					menuModalOpen={menuModalOpen}
+					setMenuModalOpen={setMenuModalOpen}
+					menuData={menuData}
+					roleData={roleData}
+					onSubmit={handleSubmitRoleMenu}
+				/>
 			</div>
 
 			{/* 新增角色弹窗 */}

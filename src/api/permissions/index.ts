@@ -7,6 +7,11 @@ export const getPermissions = () => {
 };
 
 //根据类型查询权限列表
+export interface PermissionList {
+	identifier: string;
+	name: string;
+	type: "menu" | "api" | "action";
+}
 export const getPermissionsByType = (type?: "menu" | "api" | "action") => {
-	return http.post<UserInfo>("/permissions/selectAll", { type });
+	return http.post<PermissionList[]>("/permissions/selectAll", { type });
 };

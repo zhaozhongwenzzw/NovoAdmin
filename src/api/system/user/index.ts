@@ -20,6 +20,7 @@ export interface UserListResponse {
 	status: UserStatus;
 	loginCount: number;
 	statusStr: string;
+	roleId: string;
 }
 
 export interface AddUserParams {
@@ -35,7 +36,11 @@ export const getUserList = (params: UserListRequest) => {
 };
 
 export const addUser = (params: AddUserParams) => {
-	return http.post("/user/add", params);
+	return http.post("/user/add", params, {
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
 };
 
 export interface UpdateUserParams {

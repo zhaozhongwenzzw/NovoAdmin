@@ -3,9 +3,7 @@ import { themeVars } from "@/configs/theme/hooks/theme.css";
 import { rgbAlpha } from "@/utils/theme";
 import { Toaster } from "sonner";
 import styled from "styled-components";
-import { Spin } from "antd";
 import { motion } from "framer-motion";
-
 import { Iconify } from "../icon";
 
 /**
@@ -50,7 +48,7 @@ export default function Toast() {
 					),
 					loading: (
 						<div className="p-2 bg-gray-400/10 rounded-lg text-primary">
-							<Spin tip="Loading" />
+							<Iconify icon="svg-spinners:3-dots-fade" size={24} className="text-primary animate-pulse" />
 						</div>
 					),
 				}}

@@ -1,8 +1,8 @@
-import { http } from '@/utils/http';
+import { http } from "@/utils/http";
 
 export interface UploadResponse {
-  url: string;
-  path: string;
+	url: string;
+	path: string;
 }
 
 /**
@@ -10,14 +10,15 @@ export interface UploadResponse {
  * @param file 文件对象
  * @param folderPath 文件夹路径，默认为 '/blog'
  */
-export const uploadFile = (file: File, folderPath: string = '/blog') => {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('folderPath', folderPath);
+export const uploadFile = (file: File, folderPath = "/blog") => {
+	const formData = new FormData();
+	formData.append("file", file);
+	formData.append("folderPath", folderPath);
 
-  return http.post<UploadResponse>('/common/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+	return http.post<UploadResponse>("/oss/upload", formData, {
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+		isNotUseSuffixUrl: true,
+	});
 };

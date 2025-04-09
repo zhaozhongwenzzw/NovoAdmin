@@ -1,9 +1,9 @@
 import { Card, Space, Tree, Checkbox, type TreeProps } from "antd";
 import { Iconify } from "@/components/icon";
 import { cn } from "@/utils/cn";
-import type { RoleListResponse } from "@/api/system/role";
+import type { RoleListResponse, RoleMenuResponse } from "@/api/system/role";
 import { useState, useEffect } from "react";
-import { getMenus } from "@/api/system/menus";
+import { getMenus, type MenuListResponse } from "@/api/system/menus";
 import { toast } from "sonner";
 import type { DataNode } from "antd/es/tree";
 
@@ -11,8 +11,9 @@ interface RoleTreeProps {
 	menuModalOpen: boolean;
 	setMenuModalOpen: (open: boolean) => void;
 	menuData: RoleListResponse | undefined;
+	roleData: RoleMenuResponse[];
+	onSubmit: (checkedKeys: React.Key[]) => void;
 }
-
 interface TreeDataNode {
 	id: string;
 	key?: React.Key;
@@ -20,19 +21,44 @@ interface TreeDataNode {
 	path: string;
 	icon?: string;
 	children?: TreeDataNode[];
+	disabled?: boolean;
+	identifier?: string;
 }
+interface DisableNode extends MenuListResponse {
+	disabled?: boolean;
+}
+export default function RoleTree({ menuModalOpen, setMenuModalOpen, menuData, roleData, onSubmit }: RoleTreeProps) {
+	// 优化disableNode函数，使用map递归处理，并确保返回修改后的树
+	const disableNode = (nodes: DisableNode[]): MenuListResponse[] => {
+		return nodes.map((node) => {
+			// 创建节点的副本，避免直接修改原对象
+			const newNode = { ...node };
 
-export default function RoleTree({ menuModalOpen, setMenuModalOpen, menuData }: RoleTreeProps) {
-	//获取菜单树
+			// 设置禁用状态 - 如果没有identifier则禁用
+			newNode.disabled = !newNode.identifier;
+
+			// 递归处理子节点
+			if (newNode.children && newNode.children.length > 0) {
+				newNode.children = disableNode(newNode.children);
+			}
+
+			return newNode;
+		});
+	};
+
+	// 获取菜单树,如果没有权限标识，则不能去分配权限
 	const getMenuTreeData = async () => {
 		const res = await getMenus();
 		if (res.code === 200) {
-			setTreeData(res.data);
+			// 使用disableNode函数处理数据并设置到状态
+			const processedData = disableNode(res.data);
+			setTreeData(processedData);
+			// 提取所有键
+			const keys = extractAllKeys(processedData);
+			setAllKeys(keys);
 		} else {
 			toast.error(res.message);
 		}
-		const keys = extractAllKeys(treeData);
-		setAllKeys(keys);
 	};
 
 	const [treeData, setTreeData] = useState<TreeDataNode[]>([]);
@@ -45,7 +71,9 @@ export default function RoleTree({ menuModalOpen, setMenuModalOpen, menuData }: 
 		const keys: React.Key[] = [];
 		const traverse = (nodes: TreeDataNode[]) => {
 			for (const node of nodes) {
-				keys.push(node.id);
+				if (node.identifier) {
+					keys.push(node.id);
+				}
 				if (node.children) {
 					traverse(node.children);
 				}
@@ -60,8 +88,13 @@ export default function RoleTree({ menuModalOpen, setMenuModalOpen, menuData }: 
 		getMenuTreeData();
 	}, []);
 
-	const [expandedKeys, setExpandedKeys] = useState<React.Key[]>(["0-0-0", "0-0-1"]);
-	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>(["0-0-0"]);
+	// 获取角色已绑定的菜单权限
+	useEffect(() => {
+		setCheckedKeys(roleData?.map((item) => item.menuId));
+	}, [roleData]);
+
+	const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
 	const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
 	const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
 
@@ -104,6 +137,15 @@ export default function RoleTree({ menuModalOpen, setMenuModalOpen, menuData }: 
 		setAutoExpandParent(true);
 	};
 
+	// 提交角色菜单权限
+	const submitRoleMenu = () => {
+		if (Array.isArray(checkedKeys)) {
+			onSubmit(checkedKeys);
+		} else {
+			onSubmit((checkedKeys as any).checked);
+		}
+	};
+
 	return (
 		<div className={cn("shrink-0 transition-all duration-300 overflow-hidden", menuModalOpen ? "w-[25%]" : "w-0")}>
 			<Card
@@ -120,8 +162,7 @@ export default function RoleTree({ menuModalOpen, setMenuModalOpen, menuData }: 
 							icon="material-symbols:check"
 							className="text-xl text-primary"
 							onClick={() => {
-								// 处理确认逻辑
-								setMenuModalOpen(false);
+								submitRoleMenu();
 							}}
 						/>
 					</Space>
@@ -149,6 +190,7 @@ export default function RoleTree({ menuModalOpen, setMenuModalOpen, menuData }: 
 							checkedKeys={checkedKeys}
 							onSelect={onSelect}
 							selectedKeys={selectedKeys}
+							checkStrictly
 							fieldNames={{
 								key: "id",
 								title: "name",

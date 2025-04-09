@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import { Card, Button, Modal, Form, Input, Row, Col, Select, Space } from "antd";
+import { Card, Button, Modal, Form, Input, Row, Col, Select, Space, type UploadFile } from "antd";
 import TableContainer from "@/components/table/TableContainer";
 import { toast } from "sonner";
 import {
@@ -13,11 +13,15 @@ import {
 	deleteUser,
 	type UserListRequest,
 } from "@/api/system/user";
+import { getRoleEnumList } from "@/api/common/enum";
 import { getColumns } from "./config";
 import { UserStatus } from "@/types/user";
 import Main from "@/components/main";
 import { Iconify } from "@/components/icon";
 import { usePagination } from "@/hooks/usePagination";
+import { useEnum } from "@/hooks/useEnum";
+import type { BaseEnumResponse } from "@/api/common/enum";
+import Upload from "@/components/upload";
 
 const statusOptions = [
 	{ label: "启用", value: UserStatus.Enabled },
@@ -28,10 +32,9 @@ const App: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [tableData, setTableData] = useState<UserListResponse[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [form] = Form.useForm();
-	const [editForm] = Form.useForm();
 	const [searchForm] = Form.useForm();
+	const [isEdit, setIsEdit] = useState(false);
 
 	// 使用分页钩子管理分页和搜索参数
 	const {
@@ -42,6 +45,9 @@ const App: React.FC = () => {
 		handleReset: triggerReset,
 		setTotal,
 	} = usePagination<UserListRequest>({ form: searchForm });
+
+	//Enum
+	const { data: roleEnumList } = useEnum<BaseEnumResponse>(getRoleEnumList, []);
 
 	// 获取列表数据
 	const getList = async (searchParams = params) => {
@@ -63,49 +69,57 @@ const App: React.FC = () => {
 
 	// 搜索处理
 	const handleSearch = () => {
-		const newParams = triggerSearch(); // 获取最新参数
-		getList(newParams); // 使用最新参数查询
+		const newParams = triggerSearch();
+		getList(newParams);
 	};
 
 	// 重置处理
 	const handleReset = () => {
-		const newParams = triggerReset(); // 获取重置后的参数
-		getList(newParams); // 使用重置后的参数查询
+		const newParams = triggerReset();
+		getList(newParams);
 	};
 
-	const handleAdd = async (values: AddUserParams) => {
-		const res = await addUser(values);
-		if (res.code === 200) {
-			toast.success(res.message);
-			setIsModalOpen(false);
-			form.resetFields();
-			getList();
+	const handleSubmit = async (values: AddUserParams | UpdateUserParams) => {
+		if (isEdit) {
+			const res = await updateUser(values as UpdateUserParams);
+			if (res.code === 200) {
+				toast.success(res.message || "修改成功");
+				setIsModalOpen(false);
+				form.resetFields();
+				getList();
+			} else {
+				toast.error(res.message || "修改失败");
+			}
 		} else {
-			toast.error(res.message);
+			const res = await addUser(values as AddUserParams);
+			if (res.code === 200) {
+				toast.success(res.message);
+				setIsModalOpen(false);
+				form.resetFields();
+				getList();
+			} else {
+				toast.error(res.message);
+			}
 		}
 	};
 
 	const handleEdit = (record: UserListResponse) => {
-		editForm.setFieldsValue({
+		setIsEdit(true);
+		form.setFieldsValue({
 			id: record.id,
 			account: record.account,
 			username: record.username,
 			phone: record.phone,
 			status: record.status,
+			roleId: record.roleId,
 		});
-		setIsEditModalOpen(true);
+		setIsModalOpen(true);
 	};
 
-	const handleUpdate = async (values: UpdateUserParams) => {
-		const res = await updateUser(values);
-		if (res.code === 200) {
-			toast.success(res.message || "修改成功");
-			setIsEditModalOpen(false);
-			editForm.resetFields();
-			getList();
-		} else {
-			toast.error(res.message || "修改失败");
-		}
+	const handleAdd = () => {
+		setIsEdit(false);
+		form.resetFields();
+		setIsModalOpen(true);
 	};
 
 	const handleDelete = (record: UserListResponse) => {
@@ -130,6 +144,16 @@ const App: React.FC = () => {
 		handleEdit,
 		handleDelete,
 	});
+
+	//上传
+	const handleUpload = (info: { fileList: UploadFile[]; file: File }) => {
+		const fileList = info.fileList;
+		const avatar = fileList
+			.filter((item: UploadFile) => item.url)
+			?.map((item: UploadFile) => item.url)
+			?.join("");
+		form.setFieldsValue({ avatar });
+	};
 
 	// 初始加载
 	useEffect(() => {
@@ -167,15 +191,12 @@ const App: React.FC = () => {
 				cardProps={{
 					title: "用户列表",
 					extra: (
-						<Button
-							type="primary"
-							icon={<Iconify size={16} icon="mingcute:user-add-2-line" />}
-							onClick={() => setIsModalOpen(true)}
-						>
+						<Button type="primary" icon={<Iconify size={16} icon="mingcute:user-add-2-line" />} onClick={handleAdd}>
 							新增
 						</Button>
 					),
 				}}
+				onRefresh={getList}
 				tableProps={{
 					columns: tableColumns,
 					dataSource: tableData,
@@ -191,65 +212,91 @@ const App: React.FC = () => {
 			/>
 
 			<Modal
-				title="新增用户"
+				title={isEdit ? "编辑用户" : "新增用户"}
 				open={isModalOpen}
+				width={800}
 				onCancel={() => {
 					setIsModalOpen(false);
 					form.resetFields();
 				}}
 				footer={null}
 			>
-				<Form form={form} layout="horizontal" onFinish={handleAdd} labelCol={{ span: 4 }}>
-					<Form.Item label="账号" name="account" rules={[{ required: true, message: "请输入账号" }]}>
-						<Input />
-					</Form.Item>
-					<Form.Item label="用户名" name="username" rules={[{ required: true, message: "请输入用户名" }]}>
-						<Input />
-					</Form.Item>
-					<Form.Item label="手机号" name="phone" rules={[{ required: true, message: "请输入手机号" }]}>
-						<Input />
-					</Form.Item>
-					<Form.Item className="text-right mb-0">
-						<Button type="primary" htmlType="submit">
-							确定
-						</Button>
-					</Form.Item>
-				</Form>
-			</Modal>
+				<Form
+					form={form}
+					layout="horizontal"
+					onFinish={handleSubmit}
+					labelCol={{ span: 6 }}
+					wrapperCol={{ span: 18 }}
+					autoComplete="off"
+				>
+					<Row gutter={[16, 0]}>
+						<Col xs={24} md={12}>
+							<Form.Item name="id" hidden>
+								<Input />
+							</Form.Item>
+							<Form.Item label="账号" name="account" rules={[{ required: true, message: "请输入账号" }]}>
+								<Input placeholder="请输入账号" disabled={isEdit} autoComplete="off" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} md={12}>
+							<Form.Item label="用户名" name="username" rules={[{ required: true, message: "请输入用户名" }]}>
+								<Input placeholder="请输入用户名" autoComplete="off" />
+							</Form.Item>
+						</Col>
 
-			<Modal
-				title="编辑用户"
-				open={isEditModalOpen}
-				onCancel={() => {
-					setIsEditModalOpen(false);
-					editForm.resetFields();
-				}}
-				footer={null}
-			>
-				<Form form={editForm} layout="vertical" onFinish={handleUpdate}>
-					<Form.Item name="id" hidden>
-						<Input />
-					</Form.Item>
-					<Form.Item label="账号" name="account">
-						<Input disabled />
-					</Form.Item>
-					<Form.Item label="用户名" name="username" rules={[{ required: true, message: "请输入用户名" }]}>
-						<Input />
-					</Form.Item>
-					<Form.Item label="手机号" name="phone" rules={[{ required: true, message: "请输入手机号" }]}>
-						<Input />
-					</Form.Item>
-					<Form.Item label="状态" name="status" rules={[{ required: true, message: "请选择状态" }]}>
-						<Select options={statusOptions} />
-					</Form.Item>
-					<Form.Item className="text-right mb-0">
-						<Space>
-							<Button onClick={() => setIsEditModalOpen(false)}>取消</Button>
-							<Button type="primary" htmlType="submit">
-								确定
-							</Button>
-						</Space>
-					</Form.Item>
+						<Col xs={24} md={12}>
+							<Form.Item label="手机号" name="phone" rules={[{ required: true, message: "请输入手机号" }]}>
+								<Input placeholder="请输入手机号" autoComplete="off" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} md={12}>
+							<Form.Item label="邮箱" name="email" rules={[{ required: true, message: "请输入邮箱" }]}>
+								<Input placeholder="请输入邮箱" autoComplete="off" />
+							</Form.Item>
+						</Col>
+
+						{!isEdit && (
+							<Col xs={24} md={12}>
+								<Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码" }]}>
+									<Input.Password placeholder="请输入密码" autoComplete="new-password" />
+								</Form.Item>
+							</Col>
+						)}
+						<Col xs={24} md={12}>
+							<Form.Item label="角色" name="roleId" rules={[{ required: true, message: "请选择角色" }]}>
+								<Select options={roleEnumList} mode="multiple" placeholder="请选择角色" />
+							</Form.Item>
+						</Col>
+
+						<Col xs={24}>
+							<Form.Item label="备注" name="remark" labelCol={{ xs: 6, md: 3 }} wrapperCol={{ xs: 18, md: 21 }}>
+								<Input.TextArea rows={4} placeholder="请输入备注信息" />
+							</Form.Item>
+						</Col>
+
+						<Col xs={24}>
+							<Form.Item
+								label="头像"
+								labelCol={{ xs: 6, md: 3 }}
+								wrapperCol={{ xs: 18, md: 21 }}
+								name="avatar"
+								rules={[{ required: true, message: "请上传头像" }]}
+							>
+								<Upload onChange={handleUpload} />
+							</Form.Item>
+						</Col>
+
+						<Col xs={24}>
+							<Form.Item className="text-right mb-0">
+								<Space>
+									<Button onClick={() => setIsModalOpen(false)}>取消</Button>
+									<Button type="primary" htmlType="submit">
+										确定
+									</Button>
+								</Space>
+							</Form.Item>
+						</Col>
+					</Row>
 				</Form>
 			</Modal>
 		</Main>

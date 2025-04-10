@@ -2,8 +2,8 @@
 
 ## 环境准备
 
-- Node.js 16.x 或更高版本
-- npm 或 pnpm
+- Node.js 20.x 或更高版本
+- pnpm
 
 ## 安装
 
@@ -22,7 +22,7 @@ pnpm install
 
 ```bash
 # 启动开发服务器
-pnpm dev
+pnpm run dev
 ```
 
 启动后，打开浏览器访问开发服务器显示的地址（默认为本地开发环境）。
@@ -39,6 +39,6 @@ pnpm build
 主要配置文件位于 `src/configs` 目录下，包括：
 
 - `theme` - 主题配置
-- `configProvider` - 全局应用配置
+- `configProvider` - 全局应用配置, 初始化样式加载
 
-可以根据需要修改这些配置文件来定制应用的外观和行为。 
+可以根据需要修改这些配置文件来定制应用的外观和行为。

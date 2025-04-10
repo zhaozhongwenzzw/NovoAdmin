@@ -1,9 +1,10 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { message, Upload, type UploadFile, type UploadProps as AntdUploadProps } from "antd";
 import { uploadFile } from "@/api/common/upload";
 import { getToken } from "@/utils/auth";
+
 interface UploadProps {
 	beforeUpload?: (file: File) => boolean;
 	onChange?: (info: any) => void;
@@ -12,25 +13,41 @@ interface UploadProps {
 	maxSize?: number;
 	disabled?: boolean;
 	folderPath?: string;
+	value?: string | string[];
 }
 
 const App: React.FC<UploadProps> = (props) => {
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
+	const isFirstRender = useRef(true);
+
+	useEffect(() => {
+		if (isFirstRender.current && props.value) {
+			const initialValues = Array.isArray(props.value) ? props.value : [props.value];
+			const initialFileList = initialValues.map(
+				(url, index) =>
+					({
+						uid: `-${index + 1}`,
+						name: `file-${index + 1}`,
+						status: "done",
+						url: url,
+					}) as UploadFile,
+			);
+			setFileList(initialFileList);
+			isFirstRender.current = false;
+		}
+	}, [props.value]);
 
 	const beforeUpload = (file: File) => {
-		// 如果beforeUpload存在，则调用beforeUpload
 		if (props.beforeUpload) {
 			return props.beforeUpload(file);
 		}
-		// 如果maxSize存在，则检查文件大小
 		if (props.maxSize) {
 			if (!isLt5M(file)) {
 				message.error(`文件大小不能超过 ${props.maxSize}MB!`);
 				return false;
 			}
 		}
-		// 如果type存在，则检查文件类型
 		if (props.type === "image") {
 			if (!isImage(file)) {
 				message.error("只能上传图片文件!");
@@ -48,7 +65,6 @@ const App: React.FC<UploadProps> = (props) => {
 		return file.type.startsWith("image/");
 	};
 
-	// 上传文件
 	const handleChange: AntdUploadProps["onChange"] = (info) => {
 		for (const item of info.fileList) {
 			if (item.status === "done") {
@@ -89,7 +105,6 @@ const App: React.FC<UploadProps> = (props) => {
 				onError(new Error(response.message || "上传失败"));
 			}
 		} catch (error) {
-			// 捕获异常
 			onError(error as Error);
 			console.error("上传失败:", error);
 		} finally {

@@ -21,6 +21,12 @@ export interface UserListResponse {
 	loginCount: number;
 	statusStr: string;
 	roleId: string;
+	email: string;
+	roleList: {
+		roleId: string;
+		roleName: string;
+	}[];
+	avatar: string;
 }
 
 export interface AddUserParams {

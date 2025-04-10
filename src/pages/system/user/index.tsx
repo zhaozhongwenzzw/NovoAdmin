@@ -111,7 +111,9 @@ const App: React.FC = () => {
 			username: record.username,
 			phone: record.phone,
 			status: record.status,
-			roleId: record.roleId,
+			roleId: record.roleList?.map((item) => item.roleId),
+			email: record.email,
+			avatar: record.avatar,
 		});
 		setIsModalOpen(true);
 	};
@@ -282,7 +284,7 @@ const App: React.FC = () => {
 								name="avatar"
 								rules={[{ required: true, message: "请上传头像" }]}
 							>
-								<Upload onChange={handleUpload} />
+								<Upload onChange={handleUpload} value={form.getFieldValue("avatar")} />
 							</Form.Item>
 						</Col>
 

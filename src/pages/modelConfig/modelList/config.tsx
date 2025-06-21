@@ -64,13 +64,20 @@ export const getColumns = (props: ConfigType): TableColumnsType<Model> => [
 		key: "groupName",
 	},
 	{
+		title: "模型标签",
+		width: 400,
+		dataIndex: "tags",
+		key: "tags",
+		render: (tags) => tagList(tags)
+	},
+	{
 		title: "状态",
 		width: 100,
-		dataIndex: "isActive",
-		key: "isActive",
-		render: (isActive: boolean) => (
-			<Tag color={isActive ? "success" : "error"}>
-				{isActive ? "启用" : "禁用"}
+		dataIndex: "status",
+		key: "status",
+		render: (status: number) => (
+			<Tag color={status ? "success" : "error"}>
+				{status ? "启用" : "禁用"}
 			</Tag>
 		),
 	},
@@ -106,3 +113,54 @@ export const getColumns = (props: ConfigType): TableColumnsType<Model> => [
 		),
 	},
 ];
+
+const tagListOption = {
+	"Thinking": {
+		color: 'volcano',
+		label: '深度思考'
+	},
+	"Image": {
+		color: 'magenta',
+		label: '图像分析'
+	},
+	"File": {
+		color: 'orange',
+		label: '文件分析'
+	},
+	"Text": {
+		color: 'blue',
+		label: '文本对话'
+	},
+	"Free": {
+		color: 'green',
+		label: '免费'
+	},
+	"Paid": {
+		color: 'green',
+		label: '收费'
+	},
+	"default": {
+		color: '',
+		label: '文本对话'
+	},
+}
+const tagList = (tags: string[]) => {
+	if (tags && tags.length > 0) {
+		return (
+			<Space size={[0, 8]} wrap>
+				{tags.map((tag) => {
+					if (tag in tagListOption) {
+						const key = tag as keyof typeof tagListOption;
+						return (
+							<Tag key={key} color={tagListOption[key].color}>
+								{tagListOption[key].label}
+							</Tag>
+						);
+					}
+					return null;
+				})}
+			</Space>
+		);
+	}
+	return null;
+}

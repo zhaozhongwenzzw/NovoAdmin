@@ -12,9 +12,11 @@ import {
 	type UpdateModelParams,
 	deleteModel,
 	type ModelListRequest,
-	syncApiModel
+	syncApiModel,
+	getModelDetail
 } from "@/api/model/model";
 import { getAllModelGroups, type ModelGroups } from "@/api/model/modelGroup";
+import { type BaseEnumResponse, getModelTag } from '@/api/common/enum'
 import { getColumns } from "./config";
 import Main from "@/components/main";
 import { Iconify } from "@/components/icon";
@@ -32,7 +34,8 @@ const App: React.FC = () => {
 	const [form] = Form.useForm();
 	const [searchForm] = Form.useForm();
 	const [isEdit, setIsEdit] = useState(false);
-	const [groupOptions, setGroupOptions] = useState<{ label: string; value: string }[]>([]);
+	const [groupOptions, setGroupOptions] = useState<BaseEnumResponse[]>([]);
+	const [tagsOptions, setTagsOptions] = useState<BaseEnumResponse[]>([]);
 
 	// 使用分页钩子管理分页和搜索参数
 	const {
@@ -60,6 +63,15 @@ const App: React.FC = () => {
 		}
 	};
 
+	// 获取模型标签
+	const getModelTagList = async () => {
+		const res = await getModelTag()
+		if (res.code === 200) {
+			setTagsOptions(res.data);
+		}
+	}
+
+
 	// 获取列表数据
 	const getList = async (searchParams = params) => {
 		setLoading(true);
@@ -86,6 +98,28 @@ const App: React.FC = () => {
 		}
 	};
 
+	// 获取模型详情
+	const getModelDetailData = async (id: string) => {
+		try {
+			const res = await getModelDetail(id);
+			if (res.code === 200) {
+				form.setFieldsValue({
+					id: res.data.id,
+					callName: res.data.callName,
+					model: res.data.model,
+					groupId: res.data.groupId,
+					apiKey: res.data.apiKey,
+					baseURL: res.data.baseURL,
+					options: res.data.options,
+					isActive: res.data.status,
+					tags: res.data.tags
+				});
+			}
+		} catch (error) {
+			toast.error("获取模型详情失败");
+		}
+	}
+
 	// 搜索处理
 	const handleSearch = () => {
 		const newParams = triggerSearch();
@@ -99,6 +133,9 @@ const App: React.FC = () => {
 	};
 
 	const handleSubmit = async (values: CreateModelParams | UpdateModelParams) => {
+		if (values.tags) {
+			values.tags = JSON.stringify(values.tags);
+		}
 		if (isEdit) {
 			const res = await updateModel(values as UpdateModelParams);
 			if (res.code === 200) {
@@ -122,17 +159,10 @@ const App: React.FC = () => {
 		}
 	};
 
-	const handleEdit = (record: Model) => {
+	const handleEdit = async (record: Model) => {
 		setIsEdit(true);
-		form.setFieldsValue({
-			id: record.id,
-			name: record.name,
-			description: record.description,
-			modelKey: record.modelKey,
-			groupId: record.groupId,
-			isActive: record.isActive,
-		});
 		setIsModalOpen(true);
+		await getModelDetailData(record.id);
 	};
 
 	const handleAdd = () => {
@@ -178,6 +208,7 @@ const App: React.FC = () => {
 	// 初始加载
 	useEffect(() => {
 		getGroupOptions();
+		getModelTagList();
 	}, []);
 
 	useEffect(() => {
@@ -293,6 +324,11 @@ const App: React.FC = () => {
 						<Col xs={24} md={12}>
 							<Form.Item label="baseURL" name="baseURL" rules={[{ required: true, message: "请输入baseUrl" }]}>
 								<Input placeholder="请输入baseUrl" autoComplete="off" />
+							</Form.Item>
+						</Col>
+						<Col xs={24} md={12}>
+							<Form.Item label="模型标签" name="tags" >
+								<Select options={tagsOptions} mode='multiple' placeholder="请选择模型标签" />
 							</Form.Item>
 						</Col>
 						<Col xs={24}>

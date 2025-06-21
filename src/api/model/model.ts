@@ -29,6 +29,7 @@ export interface CreateModelParams {
 	modelKey: string;
 	groupId: string;
 	isActive: boolean;
+	tags?: string;
 }
 
 // 更新模型参数
@@ -39,6 +40,7 @@ export interface UpdateModelParams {
 	modelKey: string;
 	groupId: string;
 	isActive: boolean;
+	tags?: string;
 }
 
 // 删除模型参数
@@ -57,8 +59,22 @@ export const getAllActiveModels = () => {
 };
 
 // 获取模型详情
+export interface ModelDetailResponse {
+	id: string;
+	apiKey: string;
+	baseURL: string;
+	callName: string;
+	createdAt: string;
+	groupId: string;
+	groupName: string;
+	model: string;
+	options: string;
+	status: number;
+	tags: string[];
+	updatedAt: string;
+}
 export const getModelDetail = (id: string) => {
-	return http.post("/model-config/model/detail", { id });
+	return http.post<ModelDetailResponse>("/model-config/model/detail", { id });
 };
 
 // 新增模型

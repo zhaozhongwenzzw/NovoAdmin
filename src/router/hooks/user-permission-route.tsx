@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useUserPermissions } from "@/store/userStore";
 import type { Permission } from "@/types/user";
 import { MenuType, type AppRouteObject } from "@/types/enum/router";
@@ -16,26 +16,27 @@ function formatPermissionToRoute(permission: Permission): AppRouteObject {
 		path: permission.path,
 	};
 
-	// 当有子菜单并且菜单类型为目录，则添加路由入口组件
-	if (permission.type === MenuType.DIRECTORY && permission.children?.length) {
-		route.element = (
+	// 为懒加载组件提供一个统一的 Suspense 包裹
+	const suspenseWrapper = (children: React.ReactNode) => (
+		<Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+			{/* 您可以在这里放置一个漂亮的 CSS 加载动画或一个 SVG */}
+			<h2>Loading...</h2>
+		</div>}> {/* 使用加载组件作为 fallback */}
 			<AnimatePresence mode="wait">
 				<PageTransition key={permission.path}>
-					<Outlet key={permission.path} />
+					{children}
 				</PageTransition>
 			</AnimatePresence>
-		);
+		</Suspense>
+	);
+
+	if (permission.type === MenuType.DIRECTORY && permission.children?.length) {
+		// 目录本身也可能需要 Suspense，因为它渲染的 Outlet 最终会是懒加载的子页面
+		route.element = suspenseWrapper(<Outlet key={permission.path} />);
 	} else if (permission.component || permission.path) {
 		const Element = lazy(loadComponentFromPath(permission.component || permission.path) as any);
-		route.element = (
-			<AnimatePresence mode="wait">
-				<PageTransition key={permission.path}>
-					<Element key={permission.path} />
-				</PageTransition>
-			</AnimatePresence>
-		);
+		route.element = suspenseWrapper(<Element key={permission.path} />);
 	}
-
 	// 如果有子权限，递归转换
 	if (permission.children?.length) {
 		route.children = permission.children.map(formatPermissionToRoute);

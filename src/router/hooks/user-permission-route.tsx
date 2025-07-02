@@ -6,6 +6,7 @@ import { lazy } from "react";
 import { Outlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/animate/components/page-transition";
+import AnimatedTitleFM from "@/components/animate/components/AnimatedTitleFM";
 
 const ENTRY_PATH = "/src/pages";
 const PAGES = import.meta.glob("@/pages/**/*.tsx");
@@ -19,9 +20,8 @@ function formatPermissionToRoute(permission: Permission): AppRouteObject {
 	// 为懒加载组件提供一个统一的 Suspense 包裹
 	const suspenseWrapper = (children: React.ReactNode) => (
 		<Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-			{/* 您可以在这里放置一个漂亮的 CSS 加载动画或一个 SVG */}
-			<h2>Loading...</h2>
-		</div>}> {/* 使用加载组件作为 fallback */}
+			<AnimatedTitleFM text="Loading..." />
+		</div>}>
 			<AnimatePresence mode="wait">
 				<PageTransition key={permission.path}>
 					{children}

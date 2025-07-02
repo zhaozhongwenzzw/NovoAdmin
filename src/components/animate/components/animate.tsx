@@ -1,7 +1,7 @@
 import { motion, type Variants } from 'framer-motion';
-import { ReactNode, useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { variants } from '../variants';
-import { AnimationType, AnimationConfig } from '../types';
+import { AnimationType, type AnimationConfig } from '../types';
 import { createTransition } from '../useAnimate';
 // 根据路由路径选择动画
 

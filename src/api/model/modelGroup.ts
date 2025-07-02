@@ -1,7 +1,6 @@
 import { http } from "@/utils/http";
 import type { PageResponse } from "@/types/baseType/response";
 import type { PaginationDto } from "@/types/baseType/pagination";
-import header from "@/layouts/header";
 
 // 模型分组接口
 export interface ModelGroups {

@@ -5,7 +5,7 @@ import ProtectedRoute from "@/router/components/protected-route";
 import { usePermissionRoutes } from "@/router/hooks";
 import { ERROR_ROUTE } from "@/router/components/error-routes";
 import { ErrorBoundary } from "react-error-boundary";
-import { Navigate, type RouteObject, createHashRouter } from "react-router-dom";
+import { Navigate, type RouteObject, createBrowserRouter } from "react-router-dom";
 import { RouterProvider } from "react-router-dom";
 import type { AppRouteObject } from "@/types/enum/router";
 import { useUserPermissions } from "@/store/userStore";
@@ -73,7 +73,9 @@ export default function Router() {
 
 	const routes = [PUBLIC_ROUTE, PROTECTED_ROUTE, NO_MATCHED_ROUTE, ERROR_ROUTE] as RouteObject[];
 
-	const router = createHashRouter(routes);
+	const router = createBrowserRouter(routes, {
+		basename: import.meta.env.VITE_ASSETS_BASE_URL,
+	});
 
 	return <RouterProvider router={router} />;
 }

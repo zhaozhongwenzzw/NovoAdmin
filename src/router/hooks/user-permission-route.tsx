@@ -19,8 +19,8 @@ function formatPermissionToRoute(permission: Permission): AppRouteObject {
 
 	// 为懒加载组件提供一个统一的 Suspense 包裹
 	const suspenseWrapper = (children: React.ReactNode) => (
-		<Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-			<AnimatedTitleFM text="Loading..." />
+		<Suspense fallback={<div className="flex justify-center items-center h-screen">
+			<AnimatedTitleFM text="页面加载中..." />
 		</div>}>
 			<AnimatePresence mode="wait">
 				<PageTransition key={permission.path}>

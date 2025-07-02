@@ -76,7 +76,7 @@ const AnimatedTitleFM: React.FC<AnimatedTitleProps> = ({
   // --- JSX 渲染部分 ---
   return (
     <motion.h3
-      className="relative font-extralight text-6xl text-gray-800"
+      className="relative font-extralight text-2xl text-gray-800"
       variants={containerVariants}
       initial="hidden"
       animate={controls}

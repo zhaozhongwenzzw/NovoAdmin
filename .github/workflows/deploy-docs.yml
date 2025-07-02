@@ -8,65 +8,51 @@ on:
       - main
 
 jobs:
-  build-and-deploy: # 给 job 一个更清晰的名字
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 检出你的代码
       - name: Checkout
-        uses: actions/checkout@v4 # 建议使用最新的主版本 v4
+        uses: actions/checkout@v4
 
-      # 2. 安装 pnpm
-      # 这是关键一步，用于在 Runner 环境中安装 pnpm CLI
+      # ✨ 这里是需要修改的地方！
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8 # 你可以在这里指定 pnpm 的版本
+          version: 9 # 将版本号更新为你的本地主版本，或者更具体的 9.15.4
 
-      # 3. 设置 Node.js 环境
-      # 使用 setup-node action 来指定 Node.js 版本，并开启 pnpm 缓存
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x' # 建议指定一个明确的 Node.js LTS 版本
-          cache: 'pnpm' # 开启缓存，极大提升依赖安装速度
+          node-version: '18.x'
+          cache: 'pnpm'
 
-      # 4. 安装依赖
-      # 使用 pnpm install。--frozen-lockfile 确保使用锁定的版本，是 CI/CD 的最佳实践
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 5. 构建项目
-      # pnpm build 是 pnpm run build 的简写
       - name: Build project
         run: pnpm build
 
-      # 6. 压缩构建产物
-      # 这一步保持不变，它和包管理器无关
       - name: Archive production artifacts
         run: tar czf deploy.tar.gz dist
 
-      # 7. 拷贝文件到服务器
-      # 这一步也保持不变，它负责文件传输
       - name: Copy to server and deploy
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          port: 22 # 如果是默认端口 22，此行可以省略
+          port: 22
           source: "deploy.tar.gz"
           target: "/www/wwwroot/"
 
-      # 8. 在服务器上解压文件
-      # 远程执行的脚本也保持不变
       - name: SSH and extract
-        uses: appleboy/ssh-action@v1.0.3 # 建议使用最新的主版本 v1.0.3
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          port: 22 # 如果是默认端口 22，此行可以省略
+          port: 22
           script: |
             cd /www/wwwroot
             rm -rf NovoAdmin

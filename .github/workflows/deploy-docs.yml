@@ -1,3 +1,5 @@
+# .github/workflows/deploy.yml
+
 name: Build and Deploy NovoAdmin
 
 on:
@@ -6,22 +8,33 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      # ✨ 这里是需要修改的地方！
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9 # 将版本号更新为你的本地主版本，或者更具体的 9.15.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build project
-        run: npm run build
+        run: pnpm build
 
       - name: Archive production artifacts
-        run: |
-          tar czf deploy.tar.gz dist
+        run: tar czf deploy.tar.gz dist
 
       - name: Copy to server and deploy
         uses: appleboy/scp-action@v0.1.4
@@ -34,7 +47,7 @@ jobs:
           target: "/www/wwwroot/"
 
       - name: SSH and extract
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}

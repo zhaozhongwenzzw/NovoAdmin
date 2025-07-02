@@ -122,7 +122,7 @@ export default function RoleTree({ menuModalOpen, setMenuModalOpen, menuData, ro
 		setCheckedKeys(checkedKeysValue as React.Key[]);
 	};
 
-	const onSelect: TreeProps["onSelect"] = (selectedKeysValue, info) => {
+	const onSelect: TreeProps["onSelect"] = (selectedKeysValue) => {
 		setSelectedKeys(selectedKeysValue);
 	};
 

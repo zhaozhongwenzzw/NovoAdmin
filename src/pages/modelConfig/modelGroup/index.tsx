@@ -12,6 +12,7 @@ import {
 	type UpdateModelGroupParams,
 	deleteModelGroup,
 	type ModelGroupListRequest,
+	syncModel
 } from "@/api/model/modelGroup";
 import { getColumns } from "./config";
 import Main from "@/components/main";
@@ -126,10 +127,28 @@ const App: React.FC = () => {
 		});
 	};
 
+	const handleSync = (record: ModelGroups) => {
+		toast.promise(syncModel({ groupId: record.id }), {
+			loading: "同步分组模型中...",
+			success: (data) => {
+				if (data.code !== 200) {
+					throw new Error(data.message);
+				}
+				getList();
+				return "同步成功";
+			},
+			error: (error) => {
+				console.error(error);
+				return error.message;
+			},
+		});
+	};
+
 	// 使用传入handleEdit函数来获取完整的列配置
 	const tableColumns = getColumns({
 		handleEdit,
 		handleDelete,
+		handleSync,
 	});
 
 	// 初始加载

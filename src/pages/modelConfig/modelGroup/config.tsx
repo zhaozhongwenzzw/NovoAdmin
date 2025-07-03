@@ -8,6 +8,7 @@ import Copy from "@/components/copy";
 interface ConfigType {
 	handleEdit: (record: ModelGroups) => void;
 	handleDelete: (record: ModelGroups) => void;
+	handleSync: (record: ModelGroups) => void;
 }
 
 export const getColumns = (props: ConfigType): TableColumnsType<ModelGroups> => [
@@ -75,6 +76,13 @@ export const getColumns = (props: ConfigType): TableColumnsType<ModelGroups> => 
 					tooltipTitle="删除"
 					popconfirmTitle="确定要删除吗？"
 					onConfirm={() => props.handleDelete(record)}
+				>
+					<Iconify size={21} className="cursor-pointer text-error" icon="ant-design:delete-outlined" />
+				</WithTooltipConfirm>
+				<WithTooltipConfirm
+					tooltipTitle="同步模型"
+					popconfirmTitle="确定要同步吗？"
+					onConfirm={() => props.handleSync(record)}
 				>
 					<Iconify size={21} className="cursor-pointer text-error" icon="ant-design:delete-outlined" />
 				</WithTooltipConfirm>

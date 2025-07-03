@@ -40,6 +40,10 @@ export interface DeleteModelGroupParams {
 	id: string;
 }
 
+export interface SyncModelParams {
+	groupId: string;
+}
+
 // 获取模型分组列表
 export const getModelGroupList = (params: ModelGroupListRequest) => {
 	return http.post<PageResponse<ModelGroups>>("/model-groups/list", params);
@@ -58,6 +62,11 @@ export const updateModelGroup = (params: UpdateModelGroupParams) => {
 // 删除模型分组
 export const deleteModelGroup = (params: DeleteModelGroupParams) => {
 	return http.post("/model-groups/delete", params);
+};
+
+// 同步模型分组
+export const syncModel = (params: SyncModelParams) => {
+	return http.post("/model-config/model/syncApiModel", params);
 };
 
 // 获取所有模型分组

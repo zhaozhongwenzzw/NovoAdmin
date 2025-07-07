@@ -73,16 +73,16 @@ export const getColumns = (props: ConfigType): TableColumnsType<ModelGroups> => 
 					/>
 				</WithTooltipConfirm>
 				<WithTooltipConfirm
-					tooltipTitle="删除"
-					popconfirmTitle="确定要删除吗？"
-					onConfirm={() => props.handleDelete(record)}
-				>
-					<Iconify size={21} className="cursor-pointer text-error" icon="ant-design:delete-outlined" />
-				</WithTooltipConfirm>
-				<WithTooltipConfirm
 					tooltipTitle="同步模型"
 					popconfirmTitle="确定要同步吗？"
 					onConfirm={() => props.handleSync(record)}
+				>
+					<Iconify size={21} className="cursor-pointer text-primary" icon="carbon:async" />
+				</WithTooltipConfirm>
+				<WithTooltipConfirm
+					tooltipTitle="删除"
+					popconfirmTitle="确定要删除吗？"
+					onConfirm={() => props.handleDelete(record)}
 				>
 					<Iconify size={21} className="cursor-pointer text-error" icon="ant-design:delete-outlined" />
 				</WithTooltipConfirm>

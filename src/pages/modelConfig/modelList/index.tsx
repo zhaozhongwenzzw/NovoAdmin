@@ -207,7 +207,7 @@ const App: React.FC = () => {
 			callName: record.callName,
 			model: record.model,
 			groupId: record.groupId,
-			apiKey: record.apiKey,
+			apiKey: record.api_key,
 			baseURL: record.baseURL,
 			options: record.options,
 			tags: record.tags

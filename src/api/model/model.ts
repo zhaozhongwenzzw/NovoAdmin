@@ -9,7 +9,7 @@ export interface Model {
 	callName: string;
 	model: string;
 	baseURL: string;
-	apiKey: string;
+	api_key: string;
 	options: string;
 	tags: string[];
 	description: string;

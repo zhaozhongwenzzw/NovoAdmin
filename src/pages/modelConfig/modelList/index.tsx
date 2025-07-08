@@ -199,10 +199,27 @@ const App: React.FC = () => {
 		});
 	};
 
+	const handleCopy = (record: Model) => {
+		setIsEdit(false);
+		form.resetFields();
+		form.setFieldsValue({
+			id: null,
+			callName: record.callName,
+			model: record.model,
+			groupId: record.groupId,
+			apiKey: record.apiKey,
+			baseURL: record.baseURL,
+			options: record.options,
+			tags: record.tags
+		}); // 默认启用
+		setIsModalOpen(true);
+	}
+
 	// 使用传入handleEdit函数来获取完整的列配置
 	const tableColumns = getColumns({
 		handleEdit,
 		handleDelete,
+		handleCopy,
 	});
 
 	// 初始加载

@@ -6,6 +6,12 @@ import type { PaginationDto } from "@/types/baseType/pagination";
 export interface Model {
 	id: string;
 	name: string;
+	callName: string;
+	model: string;
+	baseURL: string;
+	apiKey: string;
+	options: string;
+	tags: string[];
 	description: string;
 	modelKey: string;
 	groupId: string;

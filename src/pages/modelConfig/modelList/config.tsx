@@ -8,6 +8,7 @@ import WithTooltipConfirm from "@/components/withTooltipConfirm";
 interface ConfigType {
 	handleEdit: (record: Model) => void;
 	handleDelete: (record: Model) => void;
+	handleCopy: (record: Model) => void;
 }
 
 export const getColumns = (props: ConfigType): TableColumnsType<Model> => [
@@ -100,6 +101,14 @@ export const getColumns = (props: ConfigType): TableColumnsType<Model> => [
 						className="cursor-pointer text-primary"
 						icon="lucide:edit"
 						onClick={() => props.handleEdit(record)}
+					/>
+				</WithTooltipConfirm>
+				<WithTooltipConfirm tooltipTitle="复制" showPopconfirm={false}>
+					<Iconify
+						size={21}
+						className="cursor-pointer text-primary"
+						icon="lucide:copy"
+						onClick={() => props.handleCopy(record)}
 					/>
 				</WithTooltipConfirm>
 				<WithTooltipConfirm
